@@ -51,5 +51,12 @@
         android:id="@+id/result"
         android:text="Result"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:id="@+id/correct_translation"
+        android:text="hello_world"
+        android:visibility="gone"/>
 
 </LinearLayout>

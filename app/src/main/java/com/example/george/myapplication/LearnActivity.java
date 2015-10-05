@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -21,6 +23,7 @@ public class LearnActivity extends AppCompatActivity {
     Button checkButton;
     String list_name;
     DBHelper dbHelper;
+    TextView correctTranslation;
 
     final static int CORRECT_COLOR = Color.BLUE;
 
@@ -34,6 +37,7 @@ public class LearnActivity extends AppCompatActivity {
         myResultText = (TextView) findViewById(R.id.result);
         nextButton = (Button) findViewById(R.id.nextButton);
         checkButton = (Button) findViewById(R.id.checkButton);
+        correctTranslation = (TextView) findViewById(R.id.correct_translation);
 
         Intent intent = getIntent();
         list_name = intent.getStringExtra(MainActivity.LIST_NAME);
@@ -71,6 +75,8 @@ public class LearnActivity extends AppCompatActivity {
         myTranslationEditText.setText("");
         myResultText.setTextColor(Color.BLACK);
         myResultText.setText("Result...");
+        correctTranslation.setText("");
+        correctTranslation.setVisibility(View.INVISIBLE);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +102,8 @@ public class LearnActivity extends AppCompatActivity {
                     }
                     dbHelper.updateDegree(myTerm.getID(), myTerm.getDegree());
                     myList.remove(myTerm);
+                    correctTranslation.setText(myTerm.getTranslation());
+                    correctTranslation.setVisibility(View.VISIBLE);
                     nextButton.setClickable(true);
                     checkButton.setClickable(false);
                 }
