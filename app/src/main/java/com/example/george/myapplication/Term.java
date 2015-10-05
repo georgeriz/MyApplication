@@ -33,7 +33,7 @@ public class Term implements Parcelable{
     public void setDegree(int aDegree) { degree = aDegree; }
 
     public boolean checkTranslation(String userInput) {
-        return userInput.equals(translation.getTranslation());
+        return translation.contains(userInput);
     }
 
     public boolean updateDegree(boolean correctInput) {
@@ -49,6 +49,7 @@ public class Term implements Parcelable{
         return true;
     }
 
+    //for the parcelable
     public Term(Parcel source) {
         String[] data = new String[4];
         source.readStringArray(data);
