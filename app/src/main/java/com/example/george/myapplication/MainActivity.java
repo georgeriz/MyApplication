@@ -112,7 +112,27 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    dbHelper.mergeLists(spinner1.getSelectedItem().toString(), spinner2.getSelectedItem().toString());
+                    String language_from = spinner1.getSelectedItem().toString();
+                    String language_to = spinner2.getSelectedItem().toString();
+                    if(language_from.equals(language_to))
+                        return;
+                    Term[] terms_from = dbHelper.getList(language_from);
+                    Term[] terms_to = dbHelper.getList(language_to);
+                    for(Term term_from: terms_from){
+                        for(Term term_to: terms_to){
+                            if(term_from.getWord().equals(term_to.getWord())){
+                                //update translation of term_to and delete term_from
+                                String new_translation = term_to.getTranslation() + ", " + term_from.getTranslation();
+                                term_to.setTranslation(new_translation);
+                                int new_degree = Math.min(term_from.getDegree(), term_to.getDegree());
+                                term_to.setDegree(new_degree);
+                                dbHelper.editWord(term_to);
+                                dbHelper.deleteWord(term_from.getID());
+                                break;
+                            }
+                        }
+                    }
+                    dbHelper.mergeLists(language_from, language_to);
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
