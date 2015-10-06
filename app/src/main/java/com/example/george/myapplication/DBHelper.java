@@ -124,6 +124,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void deleteList(String language) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME, COLUMN_LANGUAGE + " = ?", new String[] {language});
+        db.delete(TABLE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language});
+    }
+
+    public void mergeLists(String language_from, String language_to) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LANGUAGE, language_to);
+        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[] {language_from});
     }
 }

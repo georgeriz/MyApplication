@@ -14,4 +14,9 @@
         android:id="@+id/action_add"
         android:title="Add"
         app:showAsAction="never" />
+
+    <item
+        android:title="Merge"
+        android:id="@+id/action_merge"
+        app:showAsAction="never" />
 </menu>
