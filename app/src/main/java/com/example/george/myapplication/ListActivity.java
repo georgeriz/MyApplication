@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,13 +15,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 public class ListActivity extends AppCompatActivity {
     static final String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
+    static final String SHARED_PREFERENCES = "com.example.george.myapplication.SHARED_PREFERENCES";
+    static final String SHOW_TRANSLATION_SETTINGS = "show_translation";
     static String list_name;
     DBHelper dbHelper;
     TextView totalWords;
@@ -37,9 +42,14 @@ public class ListActivity extends AppCompatActivity {
         list_name = intent.getStringExtra(MainActivity.LIST_NAME);
         setTitle(list_name);
 
-        //buttons
+        //get preferences
+        SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
+        boolean showTranslation = settings.getBoolean(SHOW_TRANSLATION_SETTINGS, false);
+
+        //buttons, switches
         Button learnButton = (Button) findViewById(R.id.learnButton);
         Button addButton = (Button) findViewById(R.id.addButton);
+        Switch showTranslationSwitch = (Switch) findViewById(R.id.show_translation_switch);
 
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +62,17 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 open_activity_intent(AddActivity.class, list_name);
+            }
+        });
+
+        showTranslationSwitch.setChecked(showTranslation);
+        showTranslationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
+                SharedPreferences.Editor settingsEditor = settings.edit();
+                settingsEditor.putBoolean(SHOW_TRANSLATION_SETTINGS, isChecked);
+                settingsEditor.commit();
             }
         });
 

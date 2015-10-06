@@ -1,9 +1,11 @@
 package com.example.george.myapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,15 +18,15 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class LearnActivity extends AppCompatActivity {
-    TextView myWordText;
-    EditText myTranslationEditText;
-    TextView myResultText;
+    TextView shownWordText;
+    EditText guessedWordEditText;
+    TextView resultText;
     Button nextButton;
     Button checkButton;
     String list_name;
     DBHelper dbHelper;
-    TextView correctTranslation;
-
+    TextView correctWordText;
+    boolean showTranslation;
     final static int CORRECT_COLOR = Color.BLUE;
 
     @Override
@@ -32,16 +34,19 @@ public class LearnActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn);
 
-        myWordText = (TextView) findViewById(R.id.word);
-        myTranslationEditText = (EditText) findViewById(R.id.translation);
-        myResultText = (TextView) findViewById(R.id.result);
+        shownWordText = (TextView) findViewById(R.id.shown_word);
+        guessedWordEditText = (EditText) findViewById(R.id.guessed_word);
+        resultText = (TextView) findViewById(R.id.result);
         nextButton = (Button) findViewById(R.id.nextButton);
         checkButton = (Button) findViewById(R.id.checkButton);
-        correctTranslation = (TextView) findViewById(R.id.correct_translation);
+        correctWordText = (TextView) findViewById(R.id.correct_word);
 
         Intent intent = getIntent();
         list_name = intent.getStringExtra(MainActivity.LIST_NAME);
         setTitle(list_name);
+
+        SharedPreferences settings = getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);
+        showTranslation = settings.getBoolean(ListActivity.SHOW_TRANSLATION_SETTINGS, false);
 
         dbHelper = new DBHelper(getApplicationContext());
         Term[] terms = dbHelper.getList(list_name);
@@ -71,12 +76,16 @@ public class LearnActivity extends AppCompatActivity {
         final Term myTerm = myList.get(new Random().nextInt(myList.size()));
 
         //prepare the UI
-        myWordText.setText(myTerm.getWord());
-        myTranslationEditText.setText("");
-        myResultText.setTextColor(Color.BLACK);
-        myResultText.setText("Result...");
-        correctTranslation.setText("");
-        correctTranslation.setVisibility(View.INVISIBLE);
+        if(showTranslation) {
+            shownWordText.setText(myTerm.getTranslation());
+        } else {
+            shownWordText.setText(myTerm.getWord());
+        }
+        guessedWordEditText.setText("");
+        resultText.setTextColor(Color.BLACK);
+        resultText.setText("Result...");
+        correctWordText.setText("");
+        correctWordText.setVisibility(View.INVISIBLE);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,21 +98,21 @@ public class LearnActivity extends AppCompatActivity {
         checkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String myTranslation = myTranslationEditText.getText().toString().trim().toLowerCase();
-                if(!myTranslation.isEmpty()) {
-                    if (myTerm.checkTranslation(myTranslation)) {
-                        myTerm.updateDegree(true);
-                        myResultText.setText("Correct! :D");
-                        myResultText.setTextColor(CORRECT_COLOR);
+                String guessInput = guessedWordEditText.getText().toString().trim().toLowerCase();
+                if (!guessInput.isEmpty()) {
+                    boolean isCorrect = showTranslation ? myTerm.checkWord(guessInput) : myTerm.checkTranslation(guessInput);
+                    if (isCorrect) {
+                        resultText.setText("Correct! :D");
+                        resultText.setTextColor(CORRECT_COLOR);
                     } else {
-                        myTerm.updateDegree(false);
-                        myResultText.setText("Wrong :(");
-                        myResultText.setTextColor(Color.RED);
+                        resultText.setText("Wrong :(");
+                        resultText.setTextColor(Color.RED);
                     }
+                    myTerm.updateDegree(isCorrect);
                     dbHelper.updateDegree(myTerm.getID(), myTerm.getDegree());
                     myList.remove(myTerm);
-                    correctTranslation.setText(myTerm.getTranslation());
-                    correctTranslation.setVisibility(View.VISIBLE);
+                    correctWordText.setText(showTranslation ? myTerm.getWord() : myTerm.getTranslation());
+                    correctWordText.setVisibility(View.VISIBLE);
                     nextButton.setClickable(true);
                     checkButton.setClickable(false);
                 }
