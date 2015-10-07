@@ -38,8 +38,8 @@ public class EditActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String myWord = wordUpdate.getText().toString().trim().toLowerCase();
-                String myTranslation = translationUpdate.getText().toString().trim().toLowerCase();
+                String myWord = wordUpdate.getText().toString().trim();
+                String myTranslation = translationUpdate.getText().toString().trim();
                 boolean resetDegree = resetDegreeCheckBox.isChecked();
                 if(!(myWord.equals("") || myTranslation.equals(""))) {
                     int myDegree = resetDegree? 0: term.getDegree();

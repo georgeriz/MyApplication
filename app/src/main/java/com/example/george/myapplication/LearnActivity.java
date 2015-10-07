@@ -98,7 +98,7 @@ public class LearnActivity extends AppCompatActivity {
         checkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String guessInput = guessedWordEditText.getText().toString().trim().toLowerCase();
+                String guessInput = guessedWordEditText.getText().toString().trim();
                 if (!guessInput.isEmpty()) {
                     boolean isCorrect = showTranslation ? myTerm.checkWord(guessInput) : myTerm.checkTranslation(guessInput);
                     if (isCorrect) {

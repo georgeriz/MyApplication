@@ -45,8 +45,8 @@ public class AddActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = wordInput.getText().toString().trim().toLowerCase();
-                String translation = translationInput.getText().toString().trim().toLowerCase();
+                String word = wordInput.getText().toString().trim();
+                String translation = translationInput.getText().toString().trim();
                 String language = languageInput.getText().toString().trim();
                 if(!(word.equals("") || translation.equals("") || language.equals(""))) {
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
