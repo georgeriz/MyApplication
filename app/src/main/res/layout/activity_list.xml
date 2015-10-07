@@ -62,6 +62,12 @@
 
     </RelativeLayout>
 
+    <EditText
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_list"
+        android:hint="search for a word"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

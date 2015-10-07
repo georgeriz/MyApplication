@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +33,7 @@ public class ListActivity extends AppCompatActivity {
     TextView progressPercentage;
     ProgressBar listProgressBar;
     ListView listView;
+    EditText searchEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +84,7 @@ public class ListActivity extends AppCompatActivity {
         progressPercentage = (TextView) findViewById(R.id.progress_percentage);
         listProgressBar = (ProgressBar) findViewById(R.id.listProgressBar);
         listView = (ListView) findViewById(R.id.words_list);
+        searchEditText = (EditText) findViewById(R.id.search_list);
     }
 
     @Override
@@ -112,7 +116,7 @@ public class ListActivity extends AppCompatActivity {
         for(int j = 0; j < terms.length; j++) {
             words[j] = terms[j].getWord();
         }
-        ArrayAdapter<String> words_array_adapter = new ArrayAdapter<String>(this,
+        final ArrayAdapter<String> words_array_adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, words);
         listView.setAdapter(words_array_adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -121,6 +125,25 @@ public class ListActivity extends AppCompatActivity {
                 Intent open_edit_activity_intent = new Intent(getApplicationContext(), EditActivity.class);
                 open_edit_activity_intent.putExtra(EXTRA_NAME_TERM, terms[position]);
                 startActivity(open_edit_activity_intent);
+            }
+        });
+
+        //search list
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String searchText = searchEditText.getText().toString();
+                words_array_adapter.getFilter().filter(searchText);
             }
         });
     }
