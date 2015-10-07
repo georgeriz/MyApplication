@@ -24,6 +24,8 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.Objects;
+
 public class ListActivity extends AppCompatActivity {
     static final String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
     static final String SHARED_PREFERENCES = "com.example.george.myapplication.SHARED_PREFERENCES";
@@ -112,7 +114,7 @@ public class ListActivity extends AppCompatActivity {
         progressPercentage.setText(progressPercentageText);
 
         //full list
-        String[] words = new String[terms.length];
+        final String[] words = new String[terms.length];
         for(int j = 0; j < terms.length; j++) {
             words[j] = terms[j].getWord();
         }
@@ -123,7 +125,15 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent open_edit_activity_intent = new Intent(getApplicationContext(), EditActivity.class);
-                open_edit_activity_intent.putExtra(EXTRA_NAME_TERM, terms[position]);
+                Object o = parent.getItemAtPosition(position);
+                String s = o.toString();
+                Term term = null;
+                for(int j = 0; j < words.length; j++){
+                    if(s.equals(words[j])){
+                        term = terms[j];
+                    }
+                }
+                open_edit_activity_intent.putExtra(EXTRA_NAME_TERM, term);
                 startActivity(open_edit_activity_intent);
             }
         });
