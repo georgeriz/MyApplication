@@ -28,7 +28,7 @@ public class ListActivity extends AppCompatActivity {
     static final String SHOW_TRANSLATION_SETTINGS = "show_translation";
     static String list_name;
     DBHelper dbHelper;
-    TextView totalWords;
+    TextView progressPercentage;
     ProgressBar listProgressBar;
     ListView listView;
 
@@ -78,7 +78,7 @@ public class ListActivity extends AppCompatActivity {
 
         //other
         dbHelper = new DBHelper(getApplicationContext());
-        totalWords = (TextView) findViewById(R.id.total_words_text);
+        progressPercentage = (TextView) findViewById(R.id.progress_percentage);
         listProgressBar = (ProgressBar) findViewById(R.id.listProgressBar);
         listView = (ListView) findViewById(R.id.words_list);
     }
@@ -93,9 +93,6 @@ public class ListActivity extends AppCompatActivity {
         //error control
         if(terms==null){return;}
 
-        //total words
-        totalWords.setText(Integer.toString(terms.length));
-
         //learning progress
         listProgressBar.setMax(terms.length);
         int progress_count = 0;
@@ -105,6 +102,10 @@ public class ListActivity extends AppCompatActivity {
             }
         }
         listProgressBar.setProgress(progress_count);
+
+        //total words percentage
+        String progressPercentageText = progress_count + "/" + terms.length;
+        progressPercentage.setText(progressPercentageText);
 
         //full list
         String[] words = new String[terms.length];
