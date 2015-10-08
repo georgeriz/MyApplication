@@ -1,19 +1,27 @@
 package com.example.george.myapplication;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -23,8 +31,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
-
-import java.util.Objects;
 
 public class ListActivity extends AppCompatActivity {
     static final String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
@@ -36,126 +42,69 @@ public class ListActivity extends AppCompatActivity {
     ProgressBar listProgressBar;
     ListView listView;
     EditText searchEditText;
+    ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        viewPager = (ViewPager) findViewById(R.id.activity_list_view_pager);
+
+        FragmentAdapter mAdapter = new FragmentAdapter(getSupportFragmentManager());
+
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+            @Override
+            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+            }
+
+            @Override
+            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+            }
+        };
+        actionBar.addTab(actionBar.newTab().setText("General").setTabListener(tabListener));
+        actionBar.addTab(actionBar.newTab().setText("Full list").setTabListener(tabListener));
+
+
+
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        viewPager.setAdapter(mAdapter);
+
         //selected list
         Intent intent = getIntent();
         list_name = intent.getStringExtra(MainActivity.LIST_NAME);
         setTitle(list_name);
-
-        //get preferences
-        SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
-        boolean showTranslation = settings.getBoolean(SHOW_TRANSLATION_SETTINGS, false);
-
-        //buttons, switches
-        Button learnButton = (Button) findViewById(R.id.learnButton);
-        Button addButton = (Button) findViewById(R.id.addButton);
-        Switch showTranslationSwitch = (Switch) findViewById(R.id.show_translation_switch);
-
-        learnButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                open_activity_intent(LearnActivity.class, list_name);
-            }
-        });
-
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                open_activity_intent(AddActivity.class, list_name);
-            }
-        });
-
-        showTranslationSwitch.setChecked(showTranslation);
-        showTranslationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SharedPreferences settings = getSharedPreferences(SHARED_PREFERENCES, 0);
-                SharedPreferences.Editor settingsEditor = settings.edit();
-                settingsEditor.putBoolean(SHOW_TRANSLATION_SETTINGS, isChecked);
-                settingsEditor.commit();
-            }
-        });
-
-        //other
-        dbHelper = new DBHelper(getApplicationContext());
-        progressPercentage = (TextView) findViewById(R.id.progress_percentage);
-        listProgressBar = (ProgressBar) findViewById(R.id.listProgressBar);
-        listView = (ListView) findViewById(R.id.words_list);
-        searchEditText = (EditText) findViewById(R.id.search_list);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        //info about the list
-        final Term[] terms = dbHelper.getList(list_name);
-
-        //error control
-        if(terms==null){return;}
-
-        //learning progress
-        listProgressBar.setMax(terms.length);
-        int progress_count = 0;
-        for(Term term: terms) {
-            if(term.getDegree() == 1000) {
-                progress_count++;
-            }
-        }
-        listProgressBar.setProgress(progress_count);
-
-        //total words percentage
-        String progressPercentageText = progress_count + "/" + terms.length;
-        progressPercentage.setText(progressPercentageText);
-
-        //full list
-        final String[] words = new String[terms.length];
-        for(int j = 0; j < terms.length; j++) {
-            words[j] = terms[j].getWord();
-        }
-        final ArrayAdapter<String> words_array_adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, words);
-        listView.setAdapter(words_array_adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent open_edit_activity_intent = new Intent(getApplicationContext(), EditActivity.class);
-                Object o = parent.getItemAtPosition(position);
-                String s = o.toString();
-                Term term = null;
-                for(int j = 0; j < words.length; j++){
-                    if(s.equals(words[j])){
-                        term = terms[j];
-                    }
-                }
-                open_edit_activity_intent.putExtra(EXTRA_NAME_TERM, term);
-                startActivity(open_edit_activity_intent);
-            }
-        });
-
-        //search list
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String searchText = searchEditText.getText().toString();
-                words_array_adapter.getFilter().filter(searchText);
-            }
-        });
     }
 
     @Override
@@ -189,10 +138,29 @@ public class ListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void open_activity_intent(Class<?> cls, String list_name) {
-        Intent intent = new Intent(getApplicationContext(), cls);
-        intent.putExtra(MainActivity.LIST_NAME, list_name);
-        startActivity(intent);
+    public class FragmentAdapter extends FragmentPagerAdapter {
+        public FragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (position == 0) {
+                return new GeneralFragment();
+            } else if (position == 1){
+                return new FullListFragment();
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    }
+
+    public String getList_name() {
+        return list_name;
     }
 
     public static class RenameDialogFragment extends DialogFragment {
