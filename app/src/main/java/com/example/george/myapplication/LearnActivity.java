@@ -5,13 +5,10 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +21,12 @@ public class LearnActivity extends AppCompatActivity {
     Button nextButton;
     Button checkButton;
     String list_name;
-    DBHelper dbHelper;
     TextView correctWordText;
-    boolean showTranslation;
+    boolean showTranslationFirst;
+    Term term;
+    ArrayList<Term> termsList = new ArrayList<>();
+    final static String STATE_TERM = "term";
+    final static String STATE_TERMS_LIST = "terms list";
     final static int CORRECT_COLOR = Color.BLUE;
 
     @Override
@@ -41,66 +41,19 @@ public class LearnActivity extends AppCompatActivity {
         checkButton = (Button) findViewById(R.id.checkButton);
         correctWordText = (TextView) findViewById(R.id.correct_word);
 
-        Intent intent = getIntent();
-        list_name = intent.getStringExtra(MainActivity.LIST_NAME);
-        setTitle(list_name);
-
-        SharedPreferences settings = getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);
-        showTranslation = settings.getBoolean(ListActivity.SHOW_TRANSLATION_SETTINGS, false);
-
-        dbHelper = new DBHelper(getApplicationContext());
-        Term[] terms = dbHelper.getList(list_name);
-        if(terms==null) {
-            //some error control is needed here
-            return;
-        }
-
-        ArrayList<Term> myList = new ArrayList<Term>(Arrays.asList(terms));
-        testNewWord(myList);
-    }
-
-    private void testNewWord(final ArrayList<Term> myList) {
-        if(myList.size() == 0) {
-            Term[] terms = dbHelper.getList(list_name);
-            if(terms==null) {
-                //some error control is needed here
-                return;
-            }
-
-            for(Term term: terms) {
-                myList.add(term);
-            }
-        }
-
-        //select a word to display/test
-        final Term myTerm = myList.get(new Random().nextInt(myList.size()));
-
-        //prepare the UI
-        if(showTranslation) {
-            shownWordText.setText(myTerm.getTranslation());
-        } else {
-            shownWordText.setText(myTerm.getWord());
-        }
-        guessedWordEditText.setText("");
-        resultText.setTextColor(Color.BLACK);
-        resultText.setText("Result...");
-        correctWordText.setText("");
-        correctWordText.setVisibility(View.INVISIBLE);
-
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                testNewWord(myList);
+                selectNextWord();
+                displayNextWord();
             }
         });
-        nextButton.setClickable(false);
-
         checkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String guessInput = guessedWordEditText.getText().toString().trim();
                 if (!guessInput.isEmpty()) {
-                    boolean isCorrect = showTranslation ? myTerm.checkWord(guessInput) : myTerm.checkTranslation(guessInput);
+                    boolean isCorrect = showTranslationFirst ? term.checkWord(guessInput) : term.checkTranslation(guessInput);
                     if (isCorrect) {
                         resultText.setText("Correct! :D");
                         resultText.setTextColor(CORRECT_COLOR);
@@ -108,16 +61,70 @@ public class LearnActivity extends AppCompatActivity {
                         resultText.setText("Wrong :(");
                         resultText.setTextColor(Color.RED);
                     }
-                    myTerm.updateDegree(isCorrect);
-                    dbHelper.updateDegree(myTerm.getID(), myTerm.getDegree());
-                    myList.remove(myTerm);
-                    correctWordText.setText(showTranslation ? myTerm.getWord() : myTerm.getTranslation());
+                    term.updateDegree(isCorrect);
+                    DBHelper dbHelper = new DBHelper(getApplicationContext());
+                    dbHelper.updateDegree(term.getID(), term.getDegree());
+                    termsList.remove(term);
+                    correctWordText.setText(showTranslationFirst ? term.getWord() : term.getTranslation());
                     correctWordText.setVisibility(View.VISIBLE);
                     nextButton.setClickable(true);
                     checkButton.setClickable(false);
                 }
             }
         });
+
+        Intent intent = getIntent();
+        list_name = intent.getStringExtra(MainActivity.LIST_NAME);
+        setTitle(list_name);
+
+        SharedPreferences settings = getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);
+        showTranslationFirst = settings.getBoolean(ListActivity.SHOW_TRANSLATION_SETTINGS, false);
+
+
+
+        if(savedInstanceState!=null) {
+            term = savedInstanceState.getParcelable(STATE_TERM);
+            termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
+        } else {
+            selectNextWord();
+        }
+        displayNextWord();
+    }
+
+    private void selectNextWord() {
+        if (termsList.size() == 0) {
+            DBHelper dbHelper = new DBHelper(getApplicationContext());
+            Term[] terms = dbHelper.getList(list_name);
+            if (terms == null) {
+                //some error control is needed here
+                return;
+            }
+            termsList.addAll(Arrays.asList(terms));
+        }
+        //select a word to display/test
+        term = termsList.get(new Random().nextInt(termsList.size()));
+    }
+
+    private void displayNextWord(){
+        if(showTranslationFirst) {
+            shownWordText.setText(term.getTranslation());
+        } else {
+            shownWordText.setText(term.getWord());
+        }
+        guessedWordEditText.setText("");
+        resultText.setTextColor(Color.BLACK);
+        resultText.setText("Result...");
+        correctWordText.setText("");
+        correctWordText.setVisibility(View.INVISIBLE);
+
+        nextButton.setClickable(false);
         checkButton.setClickable(true);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putParcelable(STATE_TERM, term);
+        state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
     }
 }
