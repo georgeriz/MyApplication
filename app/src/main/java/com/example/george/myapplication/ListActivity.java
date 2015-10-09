@@ -139,6 +139,7 @@ public class ListActivity extends AppCompatActivity {
                 break;
             case R.id.action_delete:
                 dbHelper.deleteList(list_name);
+                setResult(RESULT_OK);
                 finish();
             default:
                 break;
