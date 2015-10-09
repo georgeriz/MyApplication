@@ -13,17 +13,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.EditText;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ListActivity extends AppCompatActivity {
     static final String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
     static final String SHARED_PREFERENCES = "com.example.george.myapplication.SHARED_PREFERENCES";
     static final String SHOW_TRANSLATION_SETTINGS = "show_translation";
+    static final String STATE_TERMS_LIST = "state_terms_list";
+    public static final int UPDATE_LIST_REQUEST_CODE = 1;
     static String list_name;
     DBHelper dbHelper;
     ViewPager viewPager;
+    ArrayList<Term> terms;
+    FragmentAdapter mAdapter;
 
     @Override
     @SuppressWarnings("deprecation")
@@ -32,62 +41,78 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
 
         final ActionBar actionBar = getSupportActionBar();
-
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         viewPager = (ViewPager) findViewById(R.id.activity_list_view_pager);
-
-        FragmentAdapter mAdapter = new FragmentAdapter(getSupportFragmentManager());
 
         ActionBar.TabListener tabListener = new ActionBar.TabListener() {
             @Override
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                 viewPager.setCurrentItem(tab.getPosition());
             }
-
             @Override
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-            }
-
+            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {}
             @Override
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-            }
+            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {}
         };
         actionBar.addTab(actionBar.newTab().setText("General").setTabListener(tabListener));
         actionBar.addTab(actionBar.newTab().setText("Full list").setTabListener(tabListener));
 
-
-
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
             }
-
             @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
+            public void onPageScrollStateChanged(int state) {}
         });
-
+        mAdapter = new FragmentAdapter(getSupportFragmentManager());
         viewPager.setAdapter(mAdapter);
 
         //selected list
         Intent intent = getIntent();
         list_name = intent.getStringExtra(MainActivity.LIST_NAME);
         setTitle(list_name);
+
+        if (savedInstanceState == null) {
+            dbHelper = new DBHelper(getApplicationContext());
+            terms = new ArrayList<>(Arrays.asList(dbHelper.getList(list_name)));
+        } else {
+            terms = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
+        }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    public String getList_name() {
+        return list_name;
+    }
+
+    public int getProgress() {
+        int progress_count = 0;
+        for(Term term: terms) {
+            if(term.getDegree() == 1000) {
+                progress_count++;
+            }
+        }
+        return progress_count;
+    }
+
+    public int getSize() {
+        return terms.size();
+    }
+
+    public void updateTerms() {
+        terms.clear();
+        terms.addAll(Arrays.asList(dbHelper.getList(list_name)));
+        GeneralFragment generalFragment = (GeneralFragment) mAdapter.getRegisteredFragment(0);
+        if(generalFragment!=null){
+            generalFragment.updateProgress(getSize(), getProgress());
+        }
+        FullListFragment frag = (FullListFragment) mAdapter.getRegisteredFragment(1);
+        if(frag!=null) {
+            frag.updateList();
+        }
     }
 
     @Override
@@ -121,7 +146,15 @@ public class ListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putParcelableArrayList(STATE_TERMS_LIST, terms);
+    }
+
     public class FragmentAdapter extends FragmentPagerAdapter {
+        SparseArray<Fragment> registeredFragments = new SparseArray<>();
+
         public FragmentAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -140,10 +173,25 @@ public class ListActivity extends AppCompatActivity {
         public int getCount() {
             return 2;
         }
-    }
 
-    public String getList_name() {
-        return list_name;
+        //Needed in order to return the single two fragments
+        //and not create new ones
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.put(position, fragment);
+            return fragment;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
+        }
+
+        public Fragment getRegisteredFragment(int position) {
+            return registeredFragments.get(position);
+        }
     }
 
     public static class RenameDialogFragment extends DialogFragment {
@@ -161,6 +209,7 @@ public class ListActivity extends AppCompatActivity {
                             dbHelper.editLanguage(list_name, new_list_name);
                             list_name = new_list_name;
                             getActivity().setTitle(list_name);
+                            getActivity().setResult(RESULT_OK);
                         }
                     })
                     .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -170,7 +219,6 @@ public class ListActivity extends AppCompatActivity {
                     });
             // Create the AlertDialog object and return it
             return builder.create();
-
         }
     }
 }

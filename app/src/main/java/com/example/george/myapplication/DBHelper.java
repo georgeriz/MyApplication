@@ -54,7 +54,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public String[] getLists() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT DISTINCT " + COLUMN_LANGUAGE + " FROM " + TABLE_NAME, null);
-        Log.i(MainActivity.TAG, "cursor count: " + c.getCount());
         if(c.getCount()<1){
             return null;
         }

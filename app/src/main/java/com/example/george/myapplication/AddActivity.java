@@ -1,5 +1,6 @@
 package com.example.george.myapplication;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -7,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,6 +63,7 @@ public class AddActivity extends AppCompatActivity {
                         }
                     }
                     dbHelper.insertWord(word, translation, language);
+                    setResult(RESULT_OK);
                     saveNewWord(language);
                 }
             }
@@ -83,7 +86,8 @@ public class AddActivity extends AppCompatActivity {
 
                     //error control needed (in case of null)
                     open_edit_activity_intent.putExtra(ListActivity.EXTRA_NAME_TERM, term);
-                    startActivity(open_edit_activity_intent);
+                    getActivity().startActivityForResult(open_edit_activity_intent,
+                            ListActivity.UPDATE_LIST_REQUEST_CODE);
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
@@ -92,6 +96,13 @@ public class AddActivity extends AppCompatActivity {
                 }
             });
             return builder.create();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ListActivity.UPDATE_LIST_REQUEST_CODE && resultCode == RESULT_OK) {
+            setResult(RESULT_OK);
         }
     }
 }

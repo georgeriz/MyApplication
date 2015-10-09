@@ -44,6 +44,7 @@ public class EditActivity extends AppCompatActivity {
                     term.setDegree(myDegree);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.editWord(term);
+                    setResult(RESULT_OK);
                     finish();
                 }
             }
@@ -72,6 +73,7 @@ public class EditActivity extends AppCompatActivity {
         else if(id == R.id.delete_word) {
             DBHelper dbHelper = new DBHelper(getApplicationContext());
             dbHelper.deleteWord(term.getID());
+            setResult(RESULT_OK);
             finish();
         }
 

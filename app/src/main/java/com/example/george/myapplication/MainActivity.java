@@ -1,5 +1,6 @@
 package com.example.george.myapplication;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -16,50 +17,62 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "myapp_info";
     final static String LIST_NAME = "com.example.george.myapplication.LIST_NAME";
+    final static String STATE_LIST_NAMES = "state_list_names";
+    final static int UPDATE_LIST_NAMES = 1;
     static DBHelper dbHelper;
-
-    static String[] list_names;
+    ArrayAdapter<String> list_names_array_adapter;
+    static ArrayList<String> list_names;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //databases
+        if(savedInstanceState==null) {
+            dbHelper = new DBHelper(getApplicationContext());
+            list_names = new ArrayList<>(Arrays.asList(dbHelper.getLists()));
+        } else {
+            list_names = new ArrayList<>(savedInstanceState.getStringArrayList(STATE_LIST_NAMES));
+        }
+        if(list_names==null) { return;}
+
+        list_names_array_adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, list_names);
+
+        ListView list_name_listView = (ListView) findViewById(R.id.languagesListView);
+        list_name_listView.setAdapter(list_names_array_adapter);
+
+        //listView click listener
+        list_name_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent open_list_activity_intent = new Intent(getApplicationContext(), ListActivity.class);
+                //get which list was selected
+                ArrayAdapter<String> arrayAdapter = (ArrayAdapter) parent.getAdapter();
+                String list_name = arrayAdapter.getItem(position);
+                //alternative
+                //String list_name = list_names_array_adapter.getItem(position);
+                open_list_activity_intent.putExtra(LIST_NAME, list_name);
+                startActivityForResult(open_list_activity_intent, UPDATE_LIST_NAMES);
+            }
+        });
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //databases
-        dbHelper = new DBHelper(getApplicationContext());
-        list_names = dbHelper.getLists();
-
-        if(list_names!=null) {
-
-            final ArrayAdapter<String> list_names_array_adapter = new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, list_names);
-
-            ListView list_name_listView = (ListView) findViewById(R.id.languagesListView);
-            list_name_listView.setAdapter(list_names_array_adapter);
-
-            //listView click listener
-            list_name_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent open_list_activity_intent = new Intent(getApplicationContext(), ListActivity.class);
-                    //get which list was selected
-                    ArrayAdapter<String> arrayAdapter = (ArrayAdapter) parent.getAdapter();
-                    String list_name = arrayAdapter.getItem(position);
-                    //alternative
-                    //String list_name = list_names_array_adapter.getItem(position);
-                    open_list_activity_intent.putExtra(LIST_NAME, list_name);
-                    startActivity(open_list_activity_intent);
-                }
-            });
-        }
+    public void updateListNames() {
+        list_names.clear();
+        list_names.addAll(Arrays.asList(dbHelper.getLists()));
+        updateAdapter();
+    }
+    public void updateAdapter() {
+        list_names_array_adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -81,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_add:
                 Intent open_add_list_intent = new Intent(getApplicationContext(), AddActivity.class);
                 open_add_list_intent.putExtra(LIST_NAME, "");
-                startActivity(open_add_list_intent);
+                startActivityForResult(open_add_list_intent, UPDATE_LIST_NAMES);
                 break;
             case R.id.action_merge:
                 MergeDialogFragment mergeDialogFragment = new MergeDialogFragment();
@@ -94,6 +107,19 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putStringArrayList(STATE_LIST_NAMES, list_names);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
+            updateListNames();
+        }
+    }
+
     public static class MergeDialogFragment extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -103,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             builder.setView(dialogView);
             final Spinner spinner1 = (Spinner) dialogView.findViewById(R.id.spinner1);
             final Spinner spinner2 = (Spinner) dialogView.findViewById(R.id.spinner2);
-            ArrayAdapter<String> list_names_array_adapter = new ArrayAdapter<String>(getActivity(),
+            final ArrayAdapter<String> list_names_array_adapter = new ArrayAdapter<>(getActivity(),
                     android.R.layout.simple_spinner_item, list_names);
             spinner1.setAdapter(list_names_array_adapter);
             spinner2.setAdapter(list_names_array_adapter);
@@ -132,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     dbHelper.mergeLists(language_from, language_to);
+                    list_names.remove(language_from);
+                    MainActivity mainActivity = (MainActivity) getActivity();
+                    mainActivity.updateAdapter();
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override

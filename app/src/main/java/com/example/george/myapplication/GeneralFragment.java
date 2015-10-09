@@ -1,5 +1,6 @@
 package com.example.george.myapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,9 +15,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 public class GeneralFragment extends Fragment {
-    DBHelper dbHelper;
     TextView progressPercentage;
     ProgressBar listProgressBar;
+    ListActivity listActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -28,8 +29,7 @@ public class GeneralFragment extends Fragment {
         Button addButton = (Button) rootView.findViewById(R.id.addButton);
         Switch showTranslationSwitch = (Switch) rootView.findViewById(R.id.show_translation_switch);
 
-        //for debugging
-        ListActivity listActivity = (ListActivity) getActivity();
+        listActivity = (ListActivity) getActivity();
         final String list_name = listActivity.getList_name();
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,40 +60,38 @@ public class GeneralFragment extends Fragment {
         });
 
         //other
-        dbHelper = new DBHelper(getActivity());
         progressPercentage = (TextView) rootView.findViewById(R.id.progress_percentage);
         listProgressBar = (ProgressBar) rootView.findViewById(R.id.listProgressBar);
-
-        updateProgress(list_name);
 
         return rootView;
     }
 
-    private void updateProgress(String list_name) {
-        Term[] terms = dbHelper.getList(list_name);
+    @Override
+    public void onActivityCreated(Bundle bundle) {
+        super.onActivityCreated(bundle);
+        updateProgress(listActivity.getSize(), listActivity.getProgress());
+    }
 
-        //error control
-        if(terms==null){return;}
-
+    public void updateProgress(int max, int progress) {
         //learning progress
-        listProgressBar.setMax(terms.length);
-        int progress_count = 0;
-        for(Term term: terms) {
-            if(term.getDegree() == 1000) {
-                progress_count++;
-            }
-        }
-        listProgressBar.setProgress(progress_count);
+        listProgressBar.setMax(max);
+        listProgressBar.setProgress(progress);
 
         //total words percentage
-        String progressPercentageText = progress_count + "/" + terms.length;
+        String progressPercentageText = progress + "/" + max;
         progressPercentage.setText(progressPercentageText);
     }
 
     private void open_activity_intent(Class<?> cls, String list_name) {
         Intent intent = new Intent(getActivity(), cls);
         intent.putExtra(MainActivity.LIST_NAME, list_name);
-        startActivity(intent);
+        startActivityForResult(intent, ListActivity.UPDATE_LIST_REQUEST_CODE);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ListActivity.UPDATE_LIST_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            listActivity.updateTerms();
+        }
+    }
 }

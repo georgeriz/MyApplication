@@ -64,6 +64,7 @@ public class LearnActivity extends AppCompatActivity {
                     term.updateDegree(isCorrect);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.updateDegree(term.getID(), term.getDegree());
+                    setResult(RESULT_OK);
                     termsList.remove(term);
                     correctWordText.setText(showTranslationFirst ? term.getWord() : term.getTranslation());
                     correctWordText.setVisibility(View.VISIBLE);
