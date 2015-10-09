@@ -10,14 +10,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 
 public class AddActivity extends AppCompatActivity {
+    final static String STATE_LISTS_NAMES = "lists_names";
     EditText wordInput;
     EditText translationInput;
-    EditText languageInput;
+    AutoCompleteTextView languageInput;
     Button saveButton;
+    String[] lists_names;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +31,20 @@ public class AddActivity extends AppCompatActivity {
 
         wordInput = (EditText) findViewById(R.id.word_input);
         translationInput = (EditText) findViewById(R.id.translation_input);
-        languageInput = (EditText) findViewById(R.id.language_input);
+        languageInput = (AutoCompleteTextView) findViewById(R.id.language_input);
         saveButton = (Button)  findViewById(R.id.save_button);
+
+        //for the autoComplete of the languages
+        if (savedInstanceState == null) {
+            DBHelper dbHelper = new DBHelper(getApplicationContext());
+            lists_names = dbHelper.getLists();
+        } else {
+            lists_names = savedInstanceState.getStringArray(STATE_LISTS_NAMES);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, lists_names);
+        languageInput.setAdapter(adapter);
+        languageInput.setThreshold(1);
 
         Intent intent = getIntent();
         String list_name = intent.getStringExtra(MainActivity.LIST_NAME);
@@ -46,12 +62,12 @@ public class AddActivity extends AppCompatActivity {
                 String word = wordInput.getText().toString().trim();
                 String translation = translationInput.getText().toString().trim();
                 String language = languageInput.getText().toString().trim();
-                if(!(word.equals("") || translation.equals("") || language.equals(""))) {
+                if (!(word.equals("") || translation.equals("") || language.equals(""))) {
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     Term[] terms = dbHelper.getList(language);
-                    if(terms!=null){
-                        for(Term term:terms){
-                            if(term.getWord().equals(word)){
+                    if (terms != null) {
+                        for (Term term : terms) {
+                            if (term.getWord().equals(word)) {
                                 AlreadyExistsDialogFragment alreadyExistsDialogFragment = new AlreadyExistsDialogFragment();
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelable("myTerm", term);
@@ -68,6 +84,12 @@ public class AddActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putStringArray(STATE_LISTS_NAMES, lists_names);
     }
 
     public static class AlreadyExistsDialogFragment extends DialogFragment {
