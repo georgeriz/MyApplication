@@ -59,4 +59,11 @@
         android:text="hello_world"
         android:visibility="gone"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_in_learn"
+        android:visibility="gone"
+        android:text="Edit"/>
+
 </LinearLayout>

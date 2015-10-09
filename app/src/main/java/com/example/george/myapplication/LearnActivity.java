@@ -20,6 +20,7 @@ public class LearnActivity extends AppCompatActivity {
     TextView resultText;
     Button nextButton;
     Button checkButton;
+    Button editButton;
     String list_name;
     TextView correctWordText;
     boolean showTranslationFirst;
@@ -38,6 +39,7 @@ public class LearnActivity extends AppCompatActivity {
         guessedWordEditText = (EditText) findViewById(R.id.guessed_word);
         resultText = (TextView) findViewById(R.id.result);
         nextButton = (Button) findViewById(R.id.nextButton);
+        editButton = (Button) findViewById(R.id.edit_in_learn);
         checkButton = (Button) findViewById(R.id.checkButton);
         correctWordText = (TextView) findViewById(R.id.correct_word);
 
@@ -68,9 +70,21 @@ public class LearnActivity extends AppCompatActivity {
                     termsList.remove(term);
                     correctWordText.setText(showTranslationFirst ? term.getWord() : term.getTranslation());
                     correctWordText.setVisibility(View.VISIBLE);
+                    editButton.setVisibility(View.VISIBLE);
                     nextButton.setClickable(true);
                     checkButton.setClickable(false);
                 }
+            }
+        });
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent open_edit_activity_intent = new Intent(getApplicationContext(), EditActivity.class);
+                open_edit_activity_intent.putExtra(ListActivity.EXTRA_NAME_TERM, term);
+                startActivity(open_edit_activity_intent);
+                selectNextWord();
+                displayNextWord();
             }
         });
 
@@ -117,6 +131,7 @@ public class LearnActivity extends AppCompatActivity {
         resultText.setText("Result...");
         correctWordText.setText("");
         correctWordText.setVisibility(View.INVISIBLE);
+        editButton.setVisibility(View.INVISIBLE);
 
         nextButton.setClickable(false);
         checkButton.setClickable(true);
