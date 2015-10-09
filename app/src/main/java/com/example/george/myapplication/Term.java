@@ -3,10 +3,11 @@ package com.example.george.myapplication;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
-
 /**
  * Created by George on 2015-09-19.
+ * Basic data structure for this application
+ * Implements the Parcelable interface, so it can
+ * be passed as an Extra to intents, etc.
  */
 public class Term implements Parcelable{
     private int _id;

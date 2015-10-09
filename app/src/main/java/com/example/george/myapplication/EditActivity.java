@@ -6,13 +6,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListView;
-
-import java.util.List;
 
 public class EditActivity extends AppCompatActivity {
     Term term;
@@ -23,7 +19,7 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
 
         Intent intent = getIntent();
-        term = (Term) intent.getParcelableExtra(ListActivity.EXTRA_NAME_TERM);
+        term = intent.getParcelableExtra(ListActivity.EXTRA_NAME_TERM);
 
 
         final EditText wordUpdate = (EditText) findViewById(R.id.word_update);

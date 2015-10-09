@@ -1,9 +1,7 @@
 package com.example.george.myapplication;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -14,9 +12,6 @@ import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
-
-import java.util.List;
-
 
 public class GeneralFragment extends Fragment {
     DBHelper dbHelper;
@@ -60,7 +55,7 @@ public class GeneralFragment extends Fragment {
                 SharedPreferences settings = getActivity().getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);
                 SharedPreferences.Editor settingsEditor = settings.edit();
                 settingsEditor.putBoolean(ListActivity.SHOW_TRANSLATION_SETTINGS, isChecked);
-                settingsEditor.commit();
+                settingsEditor.apply();
             }
         });
 

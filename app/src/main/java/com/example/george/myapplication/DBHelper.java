@@ -7,8 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.ArrayList;
-
 /**
  * Created by George on 2015-09-21.
  */
@@ -67,6 +65,7 @@ public class DBHelper extends SQLiteOpenHelper {
             result[i] = c.getString(languageColumnID);
             i++;
         }
+        c.close();
         return result;
     }
 
@@ -88,6 +87,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     c.getString(translationColumnID), c.getInt(degreeColumnID));
             j++;
         }
+        c.close();
         return result;
     }
 
