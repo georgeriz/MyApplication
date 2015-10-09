@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -206,6 +207,15 @@ public class ListActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id) {
                             String new_list_name = listNameEditText.getText().toString().trim();
                             DBHelper dbHelper = new DBHelper(getActivity());
+                            String[] lists_name = dbHelper.getLists();
+                            for(String a_list_name:lists_name){
+                                if(a_list_name.equals(list_name)){
+                                    Toast.makeText(getActivity(), "This name already exists." +
+                                            "Try merging the two lists instead.", Toast.LENGTH_LONG)
+                                            .show();
+                                    return;
+                                }
+                            }
                             dbHelper.editLanguage(list_name, new_list_name);
                             list_name = new_list_name;
                             getActivity().setTitle(list_name);
