@@ -82,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
-                return true;
+                BasicFunctions.openActivity(MainActivity.this, SettingsActivity.class);
+                break;
             case R.id.action_add:
                 BasicFunctions.openActivityForResult(MainActivity.this, AddActivity.class, "");
                 break;

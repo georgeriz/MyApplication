@@ -90,8 +90,8 @@ public class LearnActivity extends AppCompatActivity {
         list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
         setTitle(list_name);
 
-        SharedPreferences settings = getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);
-        showTranslationFirst = settings.getBoolean(ListActivity.SHOW_TRANSLATION_SETTINGS, false);
+        SharedPreferences settings = getSharedPreferences(SettingsActivity.SHARED_PREFERENCES, 0);
+        showTranslationFirst = settings.getBoolean(SettingsActivity.SHOW_TRANSLATION_SETTINGS, false);
 
 
 

@@ -65,12 +65,7 @@ public class EditActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        else if(id == R.id.delete_word) {
+        if(id == R.id.delete_word) {
             BasicFunctions.deleteTerm(EditActivity.this, term);
             setResult(RESULT_OK);
             finish();

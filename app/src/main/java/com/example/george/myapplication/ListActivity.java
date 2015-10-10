@@ -24,10 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ListActivity extends AppCompatActivity {
-    static final String SHARED_PREFERENCES = "com.example.george.myapplication.SHARED_PREFERENCES";
-    static final String SHOW_TRANSLATION_SETTINGS = "show_translation";
+
     static final String STATE_TERMS_LIST = "state_terms_list";
-    public static final int UPDATE_LIST_REQUEST_CODE = 1;
     static String list_name;
     DBHelper dbHelper;
     ViewPager viewPager;
@@ -131,7 +129,8 @@ public class ListActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_settings:
-                return true;
+                BasicFunctions.openActivity(ListActivity.this, SettingsActivity.class);
+                break;
             case R.id.action_rename:
                 RenameDialogFragment renameDialogFragment = new RenameDialogFragment();
                 renameDialogFragment.show(getFragmentManager(), "rename");

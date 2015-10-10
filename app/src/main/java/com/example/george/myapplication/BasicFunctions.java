@@ -18,6 +18,11 @@ public final class BasicFunctions {
 
     private BasicFunctions(){}
 
+    public static void openActivity(Activity activity, Class<?> cls) {
+        Intent open_activity_intent = new Intent(activity, cls);
+        activity.startActivity(open_activity_intent);
+    }
+
     public static void openActivityForResult(Activity activity, Class<?> cls, String list_name) {
         Intent open_activity_intent = new Intent(activity, cls);
         open_activity_intent.putExtra(LIST_NAME, list_name);

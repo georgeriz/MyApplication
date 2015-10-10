@@ -118,7 +118,7 @@ public class AddActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ListActivity.UPDATE_LIST_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
             setResult(RESULT_OK);
         }
     }

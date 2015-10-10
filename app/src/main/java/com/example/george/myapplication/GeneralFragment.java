@@ -27,7 +27,7 @@ public class GeneralFragment extends Fragment {
         //buttons, switches
         Button learnButton = (Button) rootView.findViewById(R.id.learnButton);
         Button addButton = (Button) rootView.findViewById(R.id.addButton);
-        Switch showTranslationSwitch = (Switch) rootView.findViewById(R.id.show_translation_switch);
+
 
         listActivity = (ListActivity) getActivity();
         final String list_name = listActivity.getList_name();
@@ -42,20 +42,6 @@ public class GeneralFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 BasicFunctions.openActivityForResult(getActivity(), AddActivity.class, list_name);
-            }
-        });
-
-        //get preferences
-        SharedPreferences settings = getActivity().getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);
-        boolean showTranslation = settings.getBoolean(ListActivity.SHOW_TRANSLATION_SETTINGS, false);
-        showTranslationSwitch.setChecked(showTranslation);
-        showTranslationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SharedPreferences settings = getActivity().getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);
-                SharedPreferences.Editor settingsEditor = settings.edit();
-                settingsEditor.putBoolean(ListActivity.SHOW_TRANSLATION_SETTINGS, isChecked);
-                settingsEditor.apply();
             }
         });
 
