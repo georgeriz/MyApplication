@@ -47,7 +47,7 @@ public class AddActivity extends AppCompatActivity {
         languageInput.setThreshold(1);
 
         Intent intent = getIntent();
-        String list_name = intent.getStringExtra(MainActivity.LIST_NAME);
+        String list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
 
         saveNewWord(list_name);
     }
@@ -104,12 +104,7 @@ public class AddActivity extends AppCompatActivity {
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Intent open_edit_activity_intent = new Intent(getActivity(), EditActivity.class);
-
-                    //error control needed (in case of null)
-                    open_edit_activity_intent.putExtra(ListActivity.EXTRA_NAME_TERM, term);
-                    getActivity().startActivityForResult(open_edit_activity_intent,
-                            ListActivity.UPDATE_LIST_REQUEST_CODE);
+                    BasicFunctions.openActivityForResultWithTerm(getActivity(), EditActivity.class, term);
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override

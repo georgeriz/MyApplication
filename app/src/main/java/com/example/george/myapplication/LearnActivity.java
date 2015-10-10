@@ -80,16 +80,14 @@ public class LearnActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent open_edit_activity_intent = new Intent(getApplicationContext(), EditActivity.class);
-                open_edit_activity_intent.putExtra(ListActivity.EXTRA_NAME_TERM, term);
-                startActivity(open_edit_activity_intent);
+                BasicFunctions.openActivityForResultWithTerm(LearnActivity.this, EditActivity.class, term);
                 selectNextWord();
                 displayNextWord();
             }
         });
 
         Intent intent = getIntent();
-        list_name = intent.getStringExtra(MainActivity.LIST_NAME);
+        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
         setTitle(list_name);
 
         SharedPreferences settings = getSharedPreferences(ListActivity.SHARED_PREFERENCES, 0);

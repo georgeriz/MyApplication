@@ -19,7 +19,7 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
 
         Intent intent = getIntent();
-        term = intent.getParcelableExtra(ListActivity.EXTRA_NAME_TERM);
+        term = intent.getParcelableExtra(BasicFunctions.EXTRA_NAME_TERM);
 
 
         final EditText wordUpdate = (EditText) findViewById(R.id.word_update);
@@ -71,8 +71,7 @@ public class EditActivity extends AppCompatActivity {
             return true;
         }
         else if(id == R.id.delete_word) {
-            DBHelper dbHelper = new DBHelper(getApplicationContext());
-            dbHelper.deleteWord(term.getID());
+            BasicFunctions.deleteTerm(EditActivity.this, term);
             setResult(RESULT_OK);
             finish();
         }

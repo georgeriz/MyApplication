@@ -41,10 +41,8 @@ public class FullListFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent open_edit_activity_intent = new Intent(getActivity(), EditActivity.class);
                 Term term = ((TermAdapter)parent.getAdapter()).getItem(position);
-                open_edit_activity_intent.putExtra(ListActivity.EXTRA_NAME_TERM, term);
-                startActivityForResult(open_edit_activity_intent, ListActivity.UPDATE_LIST_REQUEST_CODE);
+                BasicFunctions.openActivityForResultWithTerm(getActivity(), EditActivity.class, term);
             }
         });
 
@@ -75,10 +73,4 @@ public class FullListFragment extends Fragment {
         termAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ListActivity.UPDATE_LIST_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            listActivity.updateTerms();
-        }
-    }
 }

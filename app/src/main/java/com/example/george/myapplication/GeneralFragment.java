@@ -34,14 +34,14 @@ public class GeneralFragment extends Fragment {
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                open_activity_intent(LearnActivity.class, list_name);
+                BasicFunctions.openActivityForResult(getActivity(), LearnActivity.class, list_name);
             }
         });
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                open_activity_intent(AddActivity.class, list_name);
+                BasicFunctions.openActivityForResult(getActivity(), AddActivity.class, list_name);
             }
         });
 
@@ -82,16 +82,5 @@ public class GeneralFragment extends Fragment {
         progressPercentage.setText(progressPercentageText);
     }
 
-    private void open_activity_intent(Class<?> cls, String list_name) {
-        Intent intent = new Intent(getActivity(), cls);
-        intent.putExtra(MainActivity.LIST_NAME, list_name);
-        startActivityForResult(intent, ListActivity.UPDATE_LIST_REQUEST_CODE);
-    }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ListActivity.UPDATE_LIST_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            listActivity.updateTerms();
-        }
-    }
 }

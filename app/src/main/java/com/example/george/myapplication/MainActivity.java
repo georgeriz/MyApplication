@@ -1,6 +1,5 @@
 package com.example.george.myapplication;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -19,12 +18,11 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "myapp_info";
-    final static String LIST_NAME = "com.example.george.myapplication.LIST_NAME";
     final static String STATE_LIST_NAMES = "state_list_names";
-    final static int UPDATE_LIST_NAMES = 1;
     static DBHelper dbHelper;
     ArrayAdapter<String> list_names_array_adapter;
     static ArrayList<String> list_names;
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             list_names = new ArrayList<>(savedInstanceState.getStringArrayList(STATE_LIST_NAMES));
         }
-        if(list_names==null) { return;}
+        if(list_names.isEmpty()) { return;}
 
         list_names_array_adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, list_names);
@@ -53,17 +51,11 @@ public class MainActivity extends AppCompatActivity {
         list_name_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent open_list_activity_intent = new Intent(getApplicationContext(), ListActivity.class);
-                //get which list was selected
                 ArrayAdapter<String> arrayAdapter = (ArrayAdapter) parent.getAdapter();
                 String list_name = arrayAdapter.getItem(position);
-                //alternative
-                //String list_name = list_names_array_adapter.getItem(position);
-                open_list_activity_intent.putExtra(LIST_NAME, list_name);
-                startActivityForResult(open_list_activity_intent, UPDATE_LIST_NAMES);
+                BasicFunctions.openActivityForResult(MainActivity.this, ListActivity.class, list_name);
             }
         });
-
     }
 
     public void updateListNames() {
@@ -92,9 +84,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 return true;
             case R.id.action_add:
-                Intent open_add_list_intent = new Intent(getApplicationContext(), AddActivity.class);
-                open_add_list_intent.putExtra(LIST_NAME, "");
-                startActivityForResult(open_add_list_intent, UPDATE_LIST_NAMES);
+                BasicFunctions.openActivityForResult(MainActivity.this, AddActivity.class, "");
                 break;
             case R.id.action_merge:
                 MergeDialogFragment mergeDialogFragment = new MergeDialogFragment();
@@ -115,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
+        if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
             updateListNames();
         }
     }
@@ -139,25 +129,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     String language_from = spinner1.getSelectedItem().toString();
                     String language_to = spinner2.getSelectedItem().toString();
-                    if(language_from.equals(language_to))
-                        return;
-                    Term[] terms_from = dbHelper.getList(language_from);
-                    Term[] terms_to = dbHelper.getList(language_to);
-                    for(Term term_from: terms_from){
-                        for(Term term_to: terms_to){
-                            if(term_from.getWord().equals(term_to.getWord())){
-                                //update translation of term_to and delete term_from
-                                String new_translation = term_to.getTranslation() + ", " + term_from.getTranslation();
-                                term_to.setTranslation(new_translation);
-                                int new_degree = Math.min(term_from.getDegree(), term_to.getDegree());
-                                term_to.setDegree(new_degree);
-                                dbHelper.editWord(term_to);
-                                dbHelper.deleteWord(term_from.getID());
-                                break;
-                            }
-                        }
-                    }
-                    dbHelper.mergeLists(language_from, language_to);
+                    BasicFunctions.mergeFromToLanguageSafe(getActivity(), language_from, language_to);
+                    //actions in order to update the ListView
                     list_names.remove(language_from);
                     MainActivity mainActivity = (MainActivity) getActivity();
                     mainActivity.updateAdapter();

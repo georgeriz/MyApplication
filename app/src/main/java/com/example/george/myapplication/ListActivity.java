@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ListActivity extends AppCompatActivity {
-    static final String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
     static final String SHARED_PREFERENCES = "com.example.george.myapplication.SHARED_PREFERENCES";
     static final String SHOW_TRANSLATION_SETTINGS = "show_translation";
     static final String STATE_TERMS_LIST = "state_terms_list";
@@ -74,7 +73,7 @@ public class ListActivity extends AppCompatActivity {
 
         //selected list
         Intent intent = getIntent();
-        list_name = intent.getStringExtra(MainActivity.LIST_NAME);
+        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
         setTitle(list_name);
 
         if (savedInstanceState == null) {
@@ -138,7 +137,7 @@ public class ListActivity extends AppCompatActivity {
                 renameDialogFragment.show(getFragmentManager(), "rename");
                 break;
             case R.id.action_delete:
-                dbHelper.deleteList(list_name);
+                BasicFunctions.deleteList(ListActivity.this, list_name);
                 setResult(RESULT_OK);
                 finish();
             default:
@@ -152,6 +151,13 @@ public class ListActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         state.putParcelableArrayList(STATE_TERMS_LIST, terms);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
+            updateTerms();
+        }
     }
 
     public class FragmentAdapter extends FragmentPagerAdapter {
@@ -207,20 +213,12 @@ public class ListActivity extends AppCompatActivity {
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             String new_list_name = listNameEditText.getText().toString().trim();
-                            DBHelper dbHelper = new DBHelper(getActivity());
-                            String[] lists_name = dbHelper.getLists();
-                            for(String a_list_name:lists_name){
-                                if(a_list_name.equals(list_name)){
-                                    Toast.makeText(getActivity(), "This name already exists." +
-                                            "Try merging the two lists instead.", Toast.LENGTH_LONG)
-                                            .show();
-                                    return;
-                                }
+                            if(BasicFunctions.renameFromToLanguageCheck(getActivity(),
+                                    list_name, new_list_name)){
+                                list_name = new_list_name;
+                                getActivity().setTitle(list_name);
+                                getActivity().setResult(RESULT_OK);
                             }
-                            dbHelper.editLanguage(list_name, new_list_name);
-                            list_name = new_list_name;
-                            getActivity().setTitle(list_name);
-                            getActivity().setResult(RESULT_OK);
                         }
                     })
                     .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

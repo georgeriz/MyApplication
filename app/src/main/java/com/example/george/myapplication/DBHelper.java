@@ -114,13 +114,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public void editLanguage(String old_name, String new_name) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_LANGUAGE, new_name);
-        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[] {old_name});
-    }
-
     public void deleteList(String language) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language});
