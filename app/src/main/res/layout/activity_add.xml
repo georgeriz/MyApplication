@@ -17,7 +17,9 @@
     <EditText
         android:id="@+id/word_input"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:imeOptions="actionNext"
+        android:singleLine="true"/>
     <TextView
         android:text="Translation"
         android:layout_width="wrap_content"
@@ -25,7 +27,9 @@
     <EditText
         android:id="@+id/translation_input"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:imeOptions="actionNext"
+        android:singleLine="true"/>
     <TextView
         android:text="Language"
         android:layout_width="wrap_content"
@@ -33,7 +37,9 @@
     <AutoCompleteTextView
         android:id="@+id/language_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:imeOptions="actionDone"
+        android:singleLine="true"/>
     <Button
         android:id="@+id/save_button"
         android:layout_width="wrap_content"

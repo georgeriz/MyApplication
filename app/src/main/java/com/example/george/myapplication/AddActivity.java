@@ -1,6 +1,5 @@
 package com.example.george.myapplication;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -8,8 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -22,6 +21,7 @@ public class AddActivity extends AppCompatActivity {
     AutoCompleteTextView languageInput;
     Button saveButton;
     String[] lists_names;
+    InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +41,7 @@ public class AddActivity extends AppCompatActivity {
         } else {
             lists_names = savedInstanceState.getStringArray(STATE_LISTS_NAMES);
         }
+        if(lists_names==null)return;
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, lists_names);
         languageInput.setAdapter(adapter);
@@ -49,11 +50,15 @@ public class AddActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
 
+        imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
         saveNewWord(list_name);
     }
 
     private void saveNewWord(final String list_name) {
         wordInput.setText("");
+        wordInput.requestFocus();
+        imm.showSoftInput(wordInput, InputMethodManager.SHOW_IMPLICIT);
         translationInput.setText("");
         languageInput.setText(list_name);
         saveButton.setOnClickListener(new View.OnClickListener() {
