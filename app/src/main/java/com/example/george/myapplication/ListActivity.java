@@ -13,24 +13,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
-
+    static final String LIST_NAME = "list_name";
     static final String STATE_TERMS_LIST = "state_terms_list";
-    static String list_name;
+    String list_name;
     DBHelper dbHelper;
     ViewPager viewPager;
     ArrayList<Term> terms;
     FragmentAdapter mAdapter;
+    private boolean updatePrevious;
 
     @Override
     @SuppressWarnings("deprecation")
@@ -69,17 +71,22 @@ public class ListActivity extends AppCompatActivity {
         mAdapter = new FragmentAdapter(getSupportFragmentManager());
         viewPager.setAdapter(mAdapter);
 
-        //selected list
-        Intent intent = getIntent();
-        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
-        setTitle(list_name);
-
         if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
+
             dbHelper = new DBHelper(getApplicationContext());
             terms = new ArrayList<>(Arrays.asList(dbHelper.getList(list_name)));
+            updatePrevious = false;
         } else {
+            list_name = savedInstanceState.getString(LIST_NAME);
             terms = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
+            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
+            if(updatePrevious){
+                setResult(RESULT_OK);
+            }
         }
+        setTitle(list_name);
     }
 
     public String getList_name() {
@@ -102,15 +109,25 @@ public class ListActivity extends AppCompatActivity {
 
     public void updateTerms() {
         terms.clear();
+        DBHelper dbHelper = new DBHelper(getApplicationContext());
         terms.addAll(Arrays.asList(dbHelper.getList(list_name)));
-        GeneralFragment generalFragment = (GeneralFragment) mAdapter.getRegisteredFragment(0);
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        for(Fragment fragment: fragments){
+            if(fragment instanceof GeneralFragment){
+                ((GeneralFragment) fragment).updateProgress(getSize(), getProgress());
+            }else if(fragment instanceof FullListFragment){
+                ((FullListFragment) fragment).updateList();
+            }
+        }
+        /*GeneralFragment generalFragment = (GeneralFragment) mAdapter.getRegisteredFragment(0);
         if(generalFragment!=null){
+            Log.i(MainActivity.TAG, "ListActivity: updateTerms, generalFragment");
             generalFragment.updateProgress(getSize(), getProgress());
         }
         FullListFragment frag = (FullListFragment) mAdapter.getRegisteredFragment(1);
         if(frag!=null) {
             frag.updateList();
-        }
+        }*/
     }
 
     @Override
@@ -132,11 +149,12 @@ public class ListActivity extends AppCompatActivity {
                 BasicFunctions.openActivity(ListActivity.this, SettingsActivity.class);
                 break;
             case R.id.action_rename:
-                RenameDialogFragment renameDialogFragment = new RenameDialogFragment();
+                RenameDialogFragment renameDialogFragment = RenameDialogFragment.newInstance(list_name);
                 renameDialogFragment.show(getFragmentManager(), "rename");
                 break;
             case R.id.action_delete:
                 BasicFunctions.deleteList(ListActivity.this, list_name);
+                updatePrevious = true;
                 setResult(RESULT_OK);
                 finish();
             default:
@@ -149,18 +167,29 @@ public class ListActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
+        state.putString(LIST_NAME, list_name);
         state.putParcelableArrayList(STATE_TERMS_LIST, terms);
+        state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
+            updatePrevious = true;
+            setResult(RESULT_OK);
             updateTerms();
         }
     }
 
+    public void onDialogPositiveClick(String new_list_name) {
+        list_name = new_list_name;
+        setTitle(list_name);
+        updatePrevious = true;
+        setResult(RESULT_OK);
+    }
+
     public class FragmentAdapter extends FragmentPagerAdapter {
-        SparseArray<Fragment> registeredFragments = new SparseArray<>();
+        //SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
         public FragmentAdapter(FragmentManager fm) {
             super(fm);
@@ -183,9 +212,10 @@ public class ListActivity extends AppCompatActivity {
 
         //Needed in order to return the single two fragments
         //and not create new ones
-        @Override
+        /*@Override
         public Object instantiateItem(ViewGroup container, int position) {
             Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            Log.i(MainActivity.TAG, "ListActivity: instantiateItem");
             registeredFragments.put(position, fragment);
             return fragment;
         }
@@ -198,35 +228,8 @@ public class ListActivity extends AppCompatActivity {
 
         public Fragment getRegisteredFragment(int position) {
             return registeredFragments.get(position);
-        }
+        }*/
     }
 
-    public static class RenameDialogFragment extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            final EditText listNameEditText = new EditText(getActivity());
-            listNameEditText.setText(list_name);
-            builder.setView(listNameEditText);
-            builder.setMessage("Edit name")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            String new_list_name = listNameEditText.getText().toString().trim();
-                            if(BasicFunctions.renameFromToLanguageCheck(getActivity(),
-                                    list_name, new_list_name)){
-                                list_name = new_list_name;
-                                getActivity().setTitle(list_name);
-                                getActivity().setResult(RESULT_OK);
-                            }
-                        }
-                    })
-                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
-                        }
-                    });
-            // Create the AlertDialog object and return it
-            return builder.create();
-        }
-    }
+
 }

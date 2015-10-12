@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +25,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "myapp_info";
     final static String STATE_LIST_NAMES = "state_list_names";
+    final static String UPDATE_PREVIOUS = "update_previous";
     static DBHelper dbHelper;
     ArrayAdapter<String> list_names_array_adapter;
     static ArrayList<String> list_names;

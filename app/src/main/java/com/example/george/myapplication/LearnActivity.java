@@ -29,6 +29,7 @@ public class LearnActivity extends AppCompatActivity {
     final static String STATE_TERM = "term";
     final static String STATE_TERMS_LIST = "terms list";
     final static int CORRECT_COLOR = Color.BLUE;
+    private boolean updatePrevious;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,7 @@ public class LearnActivity extends AppCompatActivity {
                     term.updateDegree(isCorrect);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.updateDegree(term.getID(), term.getDegree());
+                    updatePrevious = true;
                     setResult(RESULT_OK);
                     termsList.remove(term);
                     correctWordText.setText(showTranslationFirst ? term.getWord() : term.getTranslation());
@@ -98,7 +100,12 @@ public class LearnActivity extends AppCompatActivity {
         if(savedInstanceState!=null) {
             term = savedInstanceState.getParcelable(STATE_TERM);
             termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
+            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
+            if(updatePrevious){
+                setResult(RESULT_OK);
+            }
         } else {
+            updatePrevious = false;
             selectNextWord();
         }
         displayNextWord();
@@ -140,5 +147,6 @@ public class LearnActivity extends AppCompatActivity {
         super.onSaveInstanceState(state);
         state.putParcelable(STATE_TERM, term);
         state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
+        state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
     }
 }

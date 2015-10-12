@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,18 +31,19 @@ public class GeneralFragment extends Fragment {
 
 
         listActivity = (ListActivity) getActivity();
-        final String list_name = listActivity.getList_name();
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BasicFunctions.openActivityForResult(getActivity(), LearnActivity.class, list_name);
+                BasicFunctions.openActivityForResult(getActivity(), LearnActivity.class,
+                        listActivity.getList_name());
             }
         });
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BasicFunctions.openActivityForResult(getActivity(), AddActivity.class, list_name);
+                BasicFunctions.openActivityForResult(getActivity(), AddActivity.class,
+                        listActivity.getList_name());
             }
         });
 

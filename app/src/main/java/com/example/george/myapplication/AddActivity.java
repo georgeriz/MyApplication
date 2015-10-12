@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -22,6 +23,7 @@ public class AddActivity extends AppCompatActivity {
     Button saveButton;
     String[] lists_names;
     InputMethodManager imm;
+    private boolean updatePrevious;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +40,13 @@ public class AddActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             DBHelper dbHelper = new DBHelper(getApplicationContext());
             lists_names = dbHelper.getLists();
+            updatePrevious = false;
         } else {
             lists_names = savedInstanceState.getStringArray(STATE_LISTS_NAMES);
+            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
+            if(updatePrevious){
+                setResult(RESULT_OK);
+            }
         }
         if(lists_names==null)return;
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
@@ -84,6 +91,7 @@ public class AddActivity extends AppCompatActivity {
                         }
                     }
                     dbHelper.insertWord(word, translation, language);
+                    updatePrevious = true;
                     setResult(RESULT_OK);
                     saveNewWord(language);
                 }
@@ -95,6 +103,7 @@ public class AddActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         state.putStringArray(STATE_LISTS_NAMES, lists_names);
+        state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
     }
 
     public static class AlreadyExistsDialogFragment extends DialogFragment {
@@ -124,6 +133,7 @@ public class AddActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
+            updatePrevious = true;
             setResult(RESULT_OK);
         }
     }
