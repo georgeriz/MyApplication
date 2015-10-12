@@ -36,9 +36,6 @@ public final class BasicFunctions {
     }
 
     public static void mergeFromToLanguageSafe(Activity activity, String language_from, String language_to) {
-        if (language_from.equals(language_to)) {
-            return;
-        }
         DBHelper dbHelper = new DBHelper(activity);
         Term[] terms_from = dbHelper.getList(language_from);
         Term[] terms_to = dbHelper.getList(language_to);

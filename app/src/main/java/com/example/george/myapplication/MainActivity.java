@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,17 +125,22 @@ public class MainActivity extends AppCompatActivity {
                     android.R.layout.simple_spinner_item, list_names);
             spinner1.setAdapter(list_names_array_adapter);
             spinner2.setAdapter(list_names_array_adapter);
-            builder.setMessage("Select two lists");
+            builder.setTitle("Select two lists");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     String language_from = spinner1.getSelectedItem().toString();
                     String language_to = spinner2.getSelectedItem().toString();
-                    BasicFunctions.mergeFromToLanguageSafe(getActivity(), language_from, language_to);
-                    //actions in order to update the ListView
-                    list_names.remove(language_from);
-                    MainActivity mainActivity = (MainActivity) getActivity();
-                    mainActivity.updateAdapter();
+                    if (language_from.equals(language_to)) {
+                        Toast.makeText(getActivity(), "Select two different lists", Toast.LENGTH_LONG)
+                        .show();
+                    }else{
+                        BasicFunctions.mergeFromToLanguageSafe(getActivity(), language_from, language_to);
+                        //actions in order to update the ListView
+                        list_names.remove(language_from);
+                        MainActivity mainActivity = (MainActivity) getActivity();
+                        mainActivity.updateAdapter();
+                    }
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
