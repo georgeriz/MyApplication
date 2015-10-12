@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ public class LearnActivity extends AppCompatActivity {
     final static String STATE_TERMS_LIST = "terms list";
     final static int CORRECT_COLOR = Color.BLUE;
     private boolean updatePrevious;
+    InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +110,8 @@ public class LearnActivity extends AppCompatActivity {
             updatePrevious = false;
             selectNextWord();
         }
+
+        imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         displayNextWord();
     }
 
@@ -132,6 +136,8 @@ public class LearnActivity extends AppCompatActivity {
             shownWordText.setText(term.getWord());
         }
         guessedWordEditText.setText("");
+        guessedWordEditText.requestFocus();
+        imm.showSoftInput(guessedWordEditText, InputMethodManager.SHOW_IMPLICIT);
         resultText.setTextColor(Color.BLACK);
         resultText.setText("Result...");
         correctWordText.setText("");
