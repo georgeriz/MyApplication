@@ -32,6 +32,7 @@ public class LearnActivity extends AppCompatActivity {
     final static int CORRECT_COLOR = Color.BLUE;
     private boolean updatePrevious;
     InputMethodManager imm;
+    private boolean onToTheNextOne;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +73,8 @@ public class LearnActivity extends AppCompatActivity {
                     updatePrevious = true;
                     setResult(RESULT_OK);
                     termsList.remove(term);
-                    correctWordText.setText(showTranslationFirst ? term.getWord() : term.getTranslation());
-                    correctWordText.setVisibility(View.VISIBLE);
-                    editButton.setVisibility(View.VISIBLE);
-                    nextButton.setClickable(true);
-                    checkButton.setClickable(false);
+                    wordChecked();
+                    onToTheNextOne = true;
                 }
             }
         });
@@ -97,22 +95,27 @@ public class LearnActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(SettingsActivity.SHARED_PREFERENCES, 0);
         showTranslationFirst = settings.getBoolean(SettingsActivity.SHOW_TRANSLATION_SETTINGS, false);
 
-
+        onToTheNextOne = false;
+        imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
         if(savedInstanceState!=null) {
             term = savedInstanceState.getParcelable(STATE_TERM);
             termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
-            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
+            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
             if(updatePrevious){
                 setResult(RESULT_OK);
+            }
+            onToTheNextOne = savedInstanceState.getBoolean("onToTheNextOne");
+            if(onToTheNextOne){
+                wordChecked();
+            }else {
+                displayNextWord();
             }
         } else {
             updatePrevious = false;
             selectNextWord();
+            displayNextWord();
         }
-
-        imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        displayNextWord();
     }
 
     private void selectNextWord() {
@@ -143,9 +146,17 @@ public class LearnActivity extends AppCompatActivity {
         correctWordText.setText("");
         correctWordText.setVisibility(View.INVISIBLE);
         editButton.setVisibility(View.INVISIBLE);
-
+        onToTheNextOne = false;
         nextButton.setClickable(false);
         checkButton.setClickable(true);
+    }
+
+    private void wordChecked() {
+        correctWordText.setText(showTranslationFirst ? term.getWord() : term.getTranslation());
+        correctWordText.setVisibility(View.VISIBLE);
+        editButton.setVisibility(View.VISIBLE);
+        nextButton.setClickable(true);
+        checkButton.setClickable(false);
     }
 
     @Override
@@ -154,5 +165,6 @@ public class LearnActivity extends AppCompatActivity {
         state.putParcelable(STATE_TERM, term);
         state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
         state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
+        state.putBoolean("onToTheNextOne", onToTheNextOne);
     }
 }
