@@ -34,7 +34,7 @@ public class Term implements Parcelable{
     public void setDegree(int aDegree) { degree = aDegree; }
 
     public boolean checkWord(String userInput) {
-        return word.getWord().equals(userInput);
+        return word.check(userInput);
     }
 
     public boolean checkTranslation(String userInput) {
