@@ -12,25 +12,25 @@ import android.os.Parcelable;
 public class Term implements Parcelable{
     private int _id;
     private Word word;
-    private Translation translation;
+    private Word translation;
     private int degree;
 
     public Term(int anId, String aWord, String aTranslation, int aDegree){
         _id = anId;
         word = new Word(aWord);
-        translation = new Translation(aTranslation);
+        translation = new Word(aTranslation);
         degree = aDegree;
     }
 
     public int getID() { return _id;}
     public String getWord() { return word.getWord(); }
     public String getTranslation() {
-        return translation.getTranslation();
+        return translation.getWord();
     }
     public int getDegree() { return degree; }
 
     public void setWord(String aWord) { word.setWord(aWord); }
-    public void setTranslation(String aTranslation) { translation.setTranslation(aTranslation); }
+    public void setTranslation(String aTranslation) { translation.setWord(aTranslation); }
     public void setDegree(int aDegree) { degree = aDegree; }
 
     public boolean checkWord(String userInput) {
@@ -38,7 +38,7 @@ public class Term implements Parcelable{
     }
 
     public boolean checkTranslation(String userInput) {
-        return translation.contains(userInput);
+        return translation.check(userInput);
     }
 
     public boolean updateDegree(boolean correctInput) {
@@ -60,7 +60,7 @@ public class Term implements Parcelable{
         source.readStringArray(data);
         _id = Integer.parseInt(data[0]);
         word = new Word(data[1]);
-        translation = new Translation(data[2]);
+        translation = new Word(data[2]);
         degree = Integer.parseInt(data[3]);
     }
 
@@ -72,7 +72,7 @@ public class Term implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringArray(new String[] {String.valueOf(_id), word.getWord(),
-                translation.getTranslation(), String.valueOf(degree)});
+                translation.getWord(), String.valueOf(degree)});
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
