@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -24,15 +25,21 @@ public class LearnActivity extends AppCompatActivity {
     Button editButton;
     String list_name;
     TextView correctWordText;
+    LinearLayout resultBox;
     boolean showTranslationFirst;
     Term term;
     ArrayList<Term> termsList = new ArrayList<>();
+    final static String CORRECT_TAG = "if_it_was_correct";
+    final static String WORD_CHECKED_TAG ="if_it_was_checked";
     final static String STATE_TERM = "term";
     final static String STATE_TERMS_LIST = "terms list";
-    final static int CORRECT_COLOR = Color.BLUE;
+    final static int CORRECT_COLOR = Color.GREEN;
+    final static int WRONG_COLOR = Color.RED;
+    final static int NEUTRAL_COLOR = Color.parseColor("#3399FF");
     private boolean updatePrevious;
     InputMethodManager imm;
-    private boolean onToTheNextOne;
+    private boolean wasWordChecked;
+    private boolean wasCorrect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +53,7 @@ public class LearnActivity extends AppCompatActivity {
         editButton = (Button) findViewById(R.id.edit_in_learn);
         checkButton = (Button) findViewById(R.id.checkButton);
         correctWordText = (TextView) findViewById(R.id.correct_word);
+        resultBox = (LinearLayout) findViewById(R.id.learn_background);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,22 +67,15 @@ public class LearnActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String guessInput = guessedWordEditText.getText().toString().trim();
                 if (!guessInput.isEmpty()) {
-                    boolean isCorrect = showTranslationFirst ? term.checkWord(guessInput) : term.checkTranslation(guessInput);
-                    if (isCorrect) {
-                        resultText.setText("Correct! :D");
-                        resultText.setTextColor(CORRECT_COLOR);
-                    } else {
-                        resultText.setText("Wrong :(");
-                        resultText.setTextColor(Color.RED);
-                    }
+                    boolean isCorrect = showTranslationFirst ? term.checkWord(guessInput) :
+                            term.checkTranslation(guessInput);
+                    wordChecked(isCorrect);
                     term.updateDegree(isCorrect);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.updateDegree(term.getID(), term.getDegree());
                     updatePrevious = true;
                     setResult(RESULT_OK);
                     termsList.remove(term);
-                    wordChecked();
-                    onToTheNextOne = true;
                 }
             }
         });
@@ -95,7 +96,9 @@ public class LearnActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(SettingsActivity.SHARED_PREFERENCES, 0);
         showTranslationFirst = settings.getBoolean(SettingsActivity.SHOW_TRANSLATION_SETTINGS, false);
 
-        onToTheNextOne = false;
+        //other initializations
+        wasCorrect = false;
+        wasWordChecked = false;
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
         if(savedInstanceState!=null) {
@@ -105,9 +108,10 @@ public class LearnActivity extends AppCompatActivity {
             if(updatePrevious){
                 setResult(RESULT_OK);
             }
-            onToTheNextOne = savedInstanceState.getBoolean("onToTheNextOne");
-            if(onToTheNextOne){
-                wordChecked();
+            wasWordChecked = savedInstanceState.getBoolean(WORD_CHECKED_TAG);
+            wasCorrect = savedInstanceState.getBoolean(CORRECT_TAG);
+            if(wasWordChecked){
+                wordChecked(wasCorrect);
             }else {
                 displayNextWord();
             }
@@ -146,17 +150,27 @@ public class LearnActivity extends AppCompatActivity {
         correctWordText.setText("");
         correctWordText.setVisibility(View.INVISIBLE);
         editButton.setVisibility(View.INVISIBLE);
-        onToTheNextOne = false;
+        resultBox.setBackgroundColor(NEUTRAL_COLOR);
+        wasWordChecked = false;
         nextButton.setClickable(false);
         checkButton.setClickable(true);
     }
 
-    private void wordChecked() {
-        correctWordText.setText(showTranslationFirst ? term.getWord() : term.getTranslation());
+    private void wordChecked(Boolean result) {
+        if (result) {
+            resultText.setText("Correct! :D");
+            resultBox.setBackgroundColor(CORRECT_COLOR);
+        } else {
+            resultText.setText("Wrong :(");
+            resultBox.setBackgroundColor(WRONG_COLOR);
+        }
+        correctWordText.setText(term.getWord() + " = " + term.getTranslation());
         correctWordText.setVisibility(View.VISIBLE);
         editButton.setVisibility(View.VISIBLE);
         nextButton.setClickable(true);
         checkButton.setClickable(false);
+        wasWordChecked = true;
+        wasCorrect = result;
     }
 
     @Override
@@ -165,6 +179,7 @@ public class LearnActivity extends AppCompatActivity {
         state.putParcelable(STATE_TERM, term);
         state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
         state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
-        state.putBoolean("onToTheNextOne", onToTheNextOne);
+        state.putBoolean(WORD_CHECKED_TAG, wasWordChecked);
+        state.putBoolean(CORRECT_TAG, wasCorrect);
     }
 }
