@@ -146,7 +146,8 @@ public class ListActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_settings:
-                BasicFunctions.openActivity(ListActivity.this, SettingsActivity.class);
+                BasicFunctions.openActivityForResult(ListActivity.this, SettingsActivity.class,
+                        list_name);
                 break;
             case R.id.action_rename:
                 RenameDialogFragment renameDialogFragment = RenameDialogFragment.newInstance(list_name);

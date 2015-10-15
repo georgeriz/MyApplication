@@ -90,11 +90,42 @@ public class DBHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    public Term[] getListWithUnlearned(String language) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + TABLE_NAME +
+                " WHERE " + COLUMN_LANGUAGE + " = '" + language + "' AND " +
+                COLUMN_DEGREE + " < 1000", null);
+        if(c.getCount() < 1) {
+            return null;
+        }
+        int idColumnID = c.getColumnIndex(COLUMN_ID);
+        int wordColumnID = c.getColumnIndex(COLUMN_WORD);
+        int translationColumnID = c.getColumnIndex(COLUMN_TRANSLATION);
+        int degreeColumnID = c.getColumnIndex(COLUMN_DEGREE);
+        Term[] result = new Term[c.getCount()];
+        int j = 0;
+        for(c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            result[j] = new Term(c.getInt(idColumnID),c.getString(wordColumnID),
+                    c.getString(translationColumnID), c.getInt(degreeColumnID));
+            j++;
+        }
+        c.close();
+        return result;
+    }
+
     public boolean updateDegree(int termID, int newDegree) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_DEGREE, newDegree);
-        db.update(TABLE_NAME, values, COLUMN_ID + " = ?", new String[] {String.valueOf(termID)});
+        db.update(TABLE_NAME, values, COLUMN_ID + " = ?", new String[]{String.valueOf(termID)});
+        return true;
+    }
+
+    public boolean resetLearningProcess(String language) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DEGREE, 0);
+        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[] {language});
         return true;
     }
 

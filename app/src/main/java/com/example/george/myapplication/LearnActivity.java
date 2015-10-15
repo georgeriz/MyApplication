@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,7 @@ public class LearnActivity extends AppCompatActivity {
     Term term;
     ArrayList<Term> termsList = new ArrayList<>();
     final static String CORRECT_TAG = "if_it_was_correct";
-    final static String WORD_CHECKED_TAG ="if_it_was_checked";
+    final static String WORD_CHECKED_TAG = "if_it_was_checked";
     final static String STATE_TERM = "term";
     final static String STATE_TERMS_LIST = "terms list";
     final static int CORRECT_COLOR = Color.GREEN;
@@ -58,8 +59,8 @@ public class LearnActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectNextWord();
-                displayNextWord();
+                if (selectNextWord())
+                    displayNextWord();
             }
         });
         checkButton.setOnClickListener(new View.OnClickListener() {
@@ -101,43 +102,46 @@ public class LearnActivity extends AppCompatActivity {
         wasWordChecked = false;
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
-        if(savedInstanceState!=null) {
+        if (savedInstanceState != null) {
             term = savedInstanceState.getParcelable(STATE_TERM);
             termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
             updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
-            if(updatePrevious){
+            if (updatePrevious) {
                 setResult(RESULT_OK);
             }
             wasWordChecked = savedInstanceState.getBoolean(WORD_CHECKED_TAG);
             wasCorrect = savedInstanceState.getBoolean(CORRECT_TAG);
-            if(wasWordChecked){
+            if (wasWordChecked) {
                 wordChecked(wasCorrect);
-            }else {
+            } else {
                 displayNextWord();
             }
         } else {
             updatePrevious = false;
-            selectNextWord();
-            displayNextWord();
+            if (selectNextWord())
+                displayNextWord();
         }
     }
 
-    private void selectNextWord() {
+    private boolean selectNextWord() {
         if (termsList.size() == 0) {
             DBHelper dbHelper = new DBHelper(getApplicationContext());
-            Term[] terms = dbHelper.getList(list_name);
+            Term[] terms = dbHelper.getListWithUnlearned(list_name);
             if (terms == null) {
-                //some error control is needed here
-                return;
+                Toast.makeText(getApplicationContext(), "All words learned. Reset.", Toast.LENGTH_LONG)
+                        .show();
+                finish();
+                return false;
             }
             termsList.addAll(Arrays.asList(terms));
         }
         //select a word to display/test
         term = termsList.get(new Random().nextInt(termsList.size()));
+        return true;
     }
 
-    private void displayNextWord(){
-        if(showTranslationFirst) {
+    private void displayNextWord() {
+        if (showTranslationFirst) {
             shownWordText.setText(term.getTranslation());
         } else {
             shownWordText.setText(term.getWord());
