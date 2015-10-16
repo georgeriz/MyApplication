@@ -4,12 +4,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +31,7 @@ public class LearnActivity extends AppCompatActivity {
     String list_name;
     TextView correctWordText;
     LinearLayout resultBox;
+    RadioGroup radioGroup;
     boolean showTranslationFirst;
     Term term;
     ArrayList<Term> termsList = new ArrayList<>();
@@ -41,6 +46,7 @@ public class LearnActivity extends AppCompatActivity {
     InputMethodManager imm;
     private boolean wasWordChecked;
     private boolean wasCorrect;
+    private String[] articles = new String[]{"el", "la"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,7 @@ public class LearnActivity extends AppCompatActivity {
         checkButton = (Button) findViewById(R.id.checkButton);
         correctWordText = (TextView) findViewById(R.id.correct_word);
         resultBox = (LinearLayout) findViewById(R.id.learn_background);
+        radioGroup = (RadioGroup) findViewById(R.id.radio_group);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +74,9 @@ public class LearnActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String guessInput = guessedWordEditText.getText().toString().trim();
+                int radio_id = radioGroup.getCheckedRadioButtonId();
                 if (!guessInput.isEmpty()) {
+                    guessInput = constructUserInput(guessInput, radio_id);
                     boolean isCorrect = showTranslationFirst ? term.checkWord(guessInput) :
                             term.checkTranslation(guessInput);
                     wordChecked(isCorrect);
@@ -123,6 +132,13 @@ public class LearnActivity extends AppCompatActivity {
         }
     }
 
+    private String constructUserInput(String guessInput, int radio_id) {
+        if(radio_id == -1)
+            return guessInput;
+        RadioButton rb = (RadioButton) radioGroup.findViewById(radio_id);
+        return rb.getText() + " " + guessInput;
+    }
+
     private boolean selectNextWord() {
         if (termsList.size() == 0) {
             DBHelper dbHelper = new DBHelper(getApplicationContext());
@@ -141,8 +157,15 @@ public class LearnActivity extends AppCompatActivity {
     }
 
     private void displayNextWord() {
+        radioGroup.setVisibility(View.GONE);
         if (showTranslationFirst) {
             shownWordText.setText(term.getTranslation());
+            for(String article: articles)
+                if(term.getWord().startsWith(article + " ")) {
+                    Log.i(MainActivity.TAG, "starts with " + article);
+                    radioGroup.setVisibility(View.VISIBLE);
+                    break;
+                }
         } else {
             shownWordText.setText(term.getWord());
         }
@@ -158,6 +181,9 @@ public class LearnActivity extends AppCompatActivity {
         wasWordChecked = false;
         nextButton.setClickable(false);
         checkButton.setClickable(true);
+
+        createRadioButtons();
+        radioGroup.clearCheck();
     }
 
     private void wordChecked(Boolean result) {
@@ -185,5 +211,17 @@ public class LearnActivity extends AppCompatActivity {
         state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
         state.putBoolean(WORD_CHECKED_TAG, wasWordChecked);
         state.putBoolean(CORRECT_TAG, wasCorrect);
+    }
+
+    private void createRadioButtons() {
+        int a = radioGroup.getChildCount();
+        if (a == 0) {
+            for (String article : articles) {
+                RadioButton radioButton = new RadioButton(getApplicationContext());
+                radioButton.setText(article);
+                radioButton.setTextColor(Color.BLACK);
+                radioGroup.addView(radioButton);
+            }
+        }
     }
 }
