@@ -2,6 +2,7 @@ package com.example.george.myapplication;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,6 +62,10 @@ public class TermAdapter extends ArrayAdapter<Term> {
         Term term = terms.get(position);
         holder.wordText.setText(term.getWord());
         holder.translationText.setText(term.getTranslation());
+
+        row.setBackgroundColor(Color.WHITE);
+        if(term.getDegree() == 1000)
+            row.setBackgroundColor(Color.GREEN);
 
         return row;
     }
