@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 /**
  * Created by George on 2015-09-21.
@@ -21,6 +20,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DEGREE = "degree";
     public static final String COLUMN_LANGUAGE = "language";
 
+    public static final String TABLE_LANGUAGE_NAME = "languages";
+
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -32,6 +33,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_WORD + " TEXT, " + COLUMN_TRANSLATION + " TEXT, " +
                 COLUMN_DEGREE + " INTEGER, " + COLUMN_LANGUAGE + " TEXT)";
         db.execSQL(SQL_CREATE_WORD_TABLE);
+
+        String SQL_CREATE_LANGUAGE_TABLE = "CREATE TABLE " + TABLE_LANGUAGE_NAME + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY, " + COLUMN_LANGUAGE + " TEXT)";
+        db.execSQL(SQL_CREATE_LANGUAGE_TABLE);
     }
 
     @Override
@@ -52,6 +57,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
+    //TODO GO TO LANGUAGES TABLE
     public String[] getLists() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT DISTINCT " + COLUMN_LANGUAGE + " FROM " + TABLE_NAME, null);
@@ -146,15 +152,19 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
+    //TODO ALSO CHANGE LANGUAGE TABLE
     public void deleteList(String language) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language});
     }
 
+    //TODO ALSO CHANGE LANGUAGE TABLE
     public void mergeLists(String language_from, String language_to) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_LANGUAGE, language_to);
         db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[] {language_from});
     }
+
+    //TODO ADD LIST (EMPTY)
 }

@@ -26,21 +26,19 @@ public class MainActivity extends AppCompatActivity {
     final static String UPDATE_PREVIOUS = "update_previous";
     static DBHelper dbHelper;
     ArrayAdapter<String> list_names_array_adapter;
-    static ArrayList<String> list_names;
+    ArrayList<String> list_names;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //databases
-        if(savedInstanceState==null) {
-            dbHelper = new DBHelper(getApplicationContext());
-            list_names = new ArrayList<>(Arrays.asList(dbHelper.getLists()));
-        } else {
-            list_names = new ArrayList<>(savedInstanceState.getStringArrayList(STATE_LIST_NAMES));
+        dbHelper = new DBHelper(this);
+        String[] lists = dbHelper.getLists();
+        if (lists == null) {
+            //deal with that
+            return;
         }
-        if(list_names.isEmpty()) { return;}
 
         list_names_array_adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, list_names);
@@ -59,13 +57,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void updateListNames() {
+    /*public void updateListNames() {
         list_names.clear();
         list_names.addAll(Arrays.asList(dbHelper.getLists()));
         updateAdapter();
-    }
+    }*/
+
     public void updateAdapter() {
         list_names_array_adapter.notifyDataSetChanged();
+    }
+
+    public void doMergeSuccessful(String language_from) {
+        list_names.remove(language_from);
+        updateAdapter();
     }
 
     @Override
@@ -86,10 +90,11 @@ public class MainActivity extends AppCompatActivity {
                 BasicFunctions.openActivity(MainActivity.this, SettingsActivity.class);
                 break;
             case R.id.action_add:
-                BasicFunctions.openActivityForResult(MainActivity.this, AddActivity.class, "");
+                AddListFragment addListFragment = AddListFragment.newInstance((String[])list_names.toArray());
+                addListFragment.show(getFragmentManager(), "add_list");
                 break;
             case R.id.action_merge:
-                MergeDialogFragment mergeDialogFragment = new MergeDialogFragment();
+                MergeDialogFragment mergeDialogFragment = MergeDialogFragment.newInstance((String[])list_names.toArray());
                 mergeDialogFragment.show(getFragmentManager(), "merge");
                 break;
             default:
@@ -97,58 +102,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-        state.putStringArrayList(STATE_LIST_NAMES, list_names);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
-            updateListNames();
-        }
-    }
-
-    public static class MergeDialogFragment extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.alert_main_merge, null);
-            builder.setView(dialogView);
-            final Spinner spinner1 = (Spinner) dialogView.findViewById(R.id.spinner1);
-            final Spinner spinner2 = (Spinner) dialogView.findViewById(R.id.spinner2);
-            final ArrayAdapter<String> list_names_array_adapter = new ArrayAdapter<>(getActivity(),
-                    android.R.layout.simple_spinner_item, list_names);
-            spinner1.setAdapter(list_names_array_adapter);
-            spinner2.setAdapter(list_names_array_adapter);
-            builder.setTitle("Select two lists");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String language_from = spinner1.getSelectedItem().toString();
-                    String language_to = spinner2.getSelectedItem().toString();
-                    if (language_from.equals(language_to)) {
-                        Toast.makeText(getActivity(), "Select two different lists", Toast.LENGTH_LONG)
-                        .show();
-                    }else{
-                        BasicFunctions.mergeFromToLanguageSafe(getActivity(), language_from, language_to);
-                        //actions in order to update the ListView
-                        list_names.remove(language_from);
-                        MainActivity mainActivity = (MainActivity) getActivity();
-                        mainActivity.updateAdapter();
-                    }
-                }
-            }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //do nothing
-                }
-            });
-            return builder.create();
-        }
     }
 }
