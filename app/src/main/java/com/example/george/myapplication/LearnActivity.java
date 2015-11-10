@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -102,8 +103,8 @@ public class LearnActivity extends AppCompatActivity {
         list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
         setTitle(list_name);
 
-        SharedPreferences settings = getSharedPreferences(SettingsActivity.SHARED_PREFERENCES, 0);
-        showTranslationFirst = settings.getBoolean(SettingsActivity.SHOW_TRANSLATION_SETTINGS, false);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        showTranslationFirst = settings.getBoolean("show_translation", true);
 
         //other initializations
         wasCorrect = false;

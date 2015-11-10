@@ -28,7 +28,7 @@ public class GeneralFragment extends Fragment {
         //buttons, switches
         Button learnButton = (Button) rootView.findViewById(R.id.learnButton);
         Button addButton = (Button) rootView.findViewById(R.id.addButton);
-
+        Button resetButton = (Button) rootView.findViewById(R.id.resetLearningProgressButton);
 
         listActivity = (ListActivity) getActivity();
         learnButton.setOnClickListener(new View.OnClickListener() {
@@ -44,6 +44,14 @@ public class GeneralFragment extends Fragment {
             public void onClick(View v) {
                 BasicFunctions.openActivityForResult(getActivity(), AddActivity.class,
                         listActivity.getList_name());
+            }
+        });
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DBHelper dbHelper = new DBHelper(listActivity);
+                dbHelper.resetLearningProcess(listActivity.getList_name());
+                updateProgress(listActivity.getSize(), 0);
             }
         });
 
