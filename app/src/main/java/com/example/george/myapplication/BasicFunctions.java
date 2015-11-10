@@ -1,13 +1,12 @@
 package com.example.george.myapplication;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 /**
  * Created by George on 2015-10-10.
+ * Functions used by the application.
  */
 public final class BasicFunctions {
 

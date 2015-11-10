@@ -9,6 +9,7 @@ import android.util.Log;
 
 /**
  * Created by George on 2015-09-21.
+ * Class managing the Database.
  */
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "WordLists.db";
