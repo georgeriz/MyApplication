@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -167,11 +168,20 @@ public class ListActivity extends AppCompatActivity {
                     break;
                 }
             }
+            updateTerms();
         } else if (requestCode == BasicFunctions.ADD_TERMS && resultCode == RESULT_OK) {
+
             ArrayList<Term> newTerms = data.getParcelableArrayListExtra("FOO");
             terms.addAll(newTerms);
+            updateTerms();
+        } else if (requestCode == 3 && resultCode == RESULT_OK) {
+            terms.clear();
+            Term[] foo = dbHelper.getList(list_name);
+            if (foo != null) {
+                terms.addAll(Arrays.asList(foo));
+            }
+            updateTerms();
         }
-        updateTerms();
     }
 
     public class FragmentAdapter extends FragmentPagerAdapter {

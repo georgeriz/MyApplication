@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -22,6 +23,7 @@ public class AddActivity extends AppCompatActivity {
     InputMethodManager imm;
     Term[] terms;
     ArrayList<Term> newTerms = new ArrayList<>();
+    ArrayList<Term> editedTerms = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +51,13 @@ public class AddActivity extends AppCompatActivity {
                     if (terms != null) {
                         for (Term term : terms) {
                             if (term.getWord().equals(word)) {
-                                AlreadyExistsDialogFragment alreadyExistsDialogFragment = new AlreadyExistsDialogFragment();
+                                /*AlreadyExistsDialogFragment alreadyExistsDialogFragment = new AlreadyExistsDialogFragment();
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelable("myTerm", term);
                                 alreadyExistsDialogFragment.setArguments(bundle);
-                                alreadyExistsDialogFragment.show(getFragmentManager(), "alreadyExists");
+                                alreadyExistsDialogFragment.show(getFragmentManager(), "alreadyExists");*/
+                                Toast.makeText(getApplicationContext(), "This word already exists, " +
+                                        "so it cannot be added. Try editing.", Toast.LENGTH_LONG).show();
                                 saveNewWord();
                                 return;
                             }
@@ -81,7 +85,7 @@ public class AddActivity extends AppCompatActivity {
         translationInput.setText("");
     }
 
-    public static class AlreadyExistsDialogFragment extends DialogFragment {
+    /*public static class AlreadyExistsDialogFragment extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -103,13 +107,12 @@ public class AddActivity extends AppCompatActivity {
             });
             return builder.create();
         }
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == BasicFunctions.EDIT_TERM && resultCode == RESULT_OK) {
-            //TODO edit through AddActivity
-            setResult(RESULT_OK);
+            setResult(RESULT_OK, data);
         }
-    }
+    }*/
 }

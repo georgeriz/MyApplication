@@ -34,8 +34,9 @@ public class GeneralFragment extends Fragment {
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BasicFunctions.openActivityForResult(getActivity(), LearnActivity.class,
-                        listActivity.getList_name());
+                Intent open_activity_intent = new Intent(getActivity(), LearnActivity.class);
+                open_activity_intent.putExtra(BasicFunctions.LIST_NAME, listActivity.getList_name());
+                getActivity().startActivityForResult(open_activity_intent, 3);
             }
         });
 

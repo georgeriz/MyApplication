@@ -42,7 +42,6 @@ public class LearnActivity extends AppCompatActivity {
     final static int CORRECT_COLOR = Color.GREEN;
     final static int WRONG_COLOR = Color.RED;
     final static int NEUTRAL_COLOR = Color.parseColor("#3399FF");
-    private boolean updatePrevious;
     InputMethodManager imm;
     private boolean wasWordChecked;
     private boolean wasCorrect;
@@ -83,8 +82,6 @@ public class LearnActivity extends AppCompatActivity {
                     term.updateDegree(isCorrect);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.updateDegree(term.getID(), term.getDegree());
-                    updatePrevious = true;
-                    setResult(RESULT_OK);
                     termsList.remove(term);
                 }
             }
@@ -123,7 +120,6 @@ public class LearnActivity extends AppCompatActivity {
                 displayNextWord();
             }
         } else {
-            updatePrevious = false;
             if (selectNextWord())
                 displayNextWord();
         }
@@ -219,5 +215,11 @@ public class LearnActivity extends AppCompatActivity {
                 radioGroup.addView(radioButton);
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        setResult(RESULT_OK);
     }
 }
