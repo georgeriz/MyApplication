@@ -85,4 +85,19 @@ public final class BasicFunctions {
         DBHelper dbHelper = new DBHelper(activity);
         dbHelper.addList(list_name);
     }
+
+    public static void addArticle(Activity activity, String article, String language) {
+        DBHelper dbHelper = new DBHelper(activity);
+        dbHelper.addPrefix(article, language);
+    }
+
+    public static String[] getArticles(Activity activity, String language) {
+        DBHelper dbHelper = new DBHelper(activity);
+        String foo = dbHelper.getPrefix(language);
+        String[] bar = foo.split(",");
+        for (int i = 0; i < bar.length; i++) {
+            bar[i] = bar[i].trim();
+        }
+        return bar;
+    }
 }

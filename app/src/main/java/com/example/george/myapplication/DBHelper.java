@@ -12,13 +12,14 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "WordLists.db";
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 4;
     public static final String TABLE_NAME = "words";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_WORD = "word";
     public static final String COLUMN_TRANSLATION = "translation";
     public static final String COLUMN_DEGREE = "degree";
     public static final String COLUMN_LANGUAGE = "language";
+    public static final String COLUMN_ARTICLE = "article";
 
     public static final String TABLE_LANGUAGE_NAME = "languages";
 
@@ -35,13 +36,15 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_WORD_TABLE);
 
         String SQL_CREATE_LANGUAGE_TABLE = "CREATE TABLE " + TABLE_LANGUAGE_NAME + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY, " + COLUMN_LANGUAGE + " TEXT)";
+                COLUMN_ID + " INTEGER PRIMARY KEY, " + COLUMN_LANGUAGE + " TEXT, " +
+                COLUMN_ARTICLE + " TEXT)";
         db.execSQL(SQL_CREATE_LANGUAGE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LANGUAGE_NAME);
         onCreate(db);
     }
 
@@ -180,5 +183,26 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_LANGUAGE, list_name);
         db.insert(TABLE_LANGUAGE_NAME, null, values);
+    }
+
+    public void addPrefix(String prefix, String language) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ARTICLE, prefix);
+        db.update(TABLE_LANGUAGE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[]{language});
+    }
+
+    public String getPrefix(String language) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT " + COLUMN_ARTICLE + " FROM " + TABLE_LANGUAGE_NAME +
+                " WHERE " + COLUMN_LANGUAGE + " = '" + language + "'", null);
+        if(c.getCount() < 1) {
+            return null;
+        }
+        int articleColumnID = c.getColumnIndex(COLUMN_ARTICLE);
+        c.moveToFirst();
+        String result = c.getString(articleColumnID);
+        c.close();
+        return result;
     }
 }

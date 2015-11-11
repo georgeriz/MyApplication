@@ -66,5 +66,22 @@
             android:id="@+id/progress_percentage"/>
 
     </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="give articles"
+            android:id="@+id/edit_articles"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Save articles"
+            android:id="@+id/save_articles_button"/>
+    </RelativeLayout>
 </LinearLayout>
 </FrameLayout>

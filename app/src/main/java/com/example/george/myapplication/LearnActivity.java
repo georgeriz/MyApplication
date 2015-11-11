@@ -45,7 +45,7 @@ public class LearnActivity extends AppCompatActivity {
     InputMethodManager imm;
     private boolean wasWordChecked;
     private boolean wasCorrect;
-    private String[] articles = new String[]{"el", "la"};
+    private String[] articles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +108,7 @@ public class LearnActivity extends AppCompatActivity {
         wasCorrect = false;
         wasWordChecked = false;
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        articles = BasicFunctions.getArticles(this, list_name);
 
         if (savedInstanceState != null) {
             term = savedInstanceState.getParcelable(STATE_TERM);
@@ -121,6 +122,7 @@ public class LearnActivity extends AppCompatActivity {
                 displayNextWord();
             }
         } else {
+
             if (selectNextWord())
                 displayNextWord();
         }

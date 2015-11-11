@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -19,6 +20,8 @@ public class GeneralFragment extends Fragment {
     TextView progressPercentage;
     ProgressBar listProgressBar;
     ListActivity listActivity;
+    EditText editArticles;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,7 +55,7 @@ public class GeneralFragment extends Fragment {
             public void onClick(View v) {
                 DBHelper dbHelper = new DBHelper(listActivity);
                 dbHelper.resetLearningProcess(listActivity.getList_name());
-                for (Term t: listActivity.terms) {
+                for (Term t : listActivity.terms) {
                     t.setDegree(0);
                 }
                 listActivity.updateTerms();
@@ -62,6 +65,19 @@ public class GeneralFragment extends Fragment {
         //other
         progressPercentage = (TextView) rootView.findViewById(R.id.progress_percentage);
         listProgressBar = (ProgressBar) rootView.findViewById(R.id.listProgressBar);
+
+        //articles
+        editArticles = (EditText) rootView.findViewById(R.id.edit_articles);
+        Button saveArticlesButton = (Button) rootView.findViewById(R.id.save_articles_button);
+
+        saveArticlesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String article = editArticles.getText().toString().trim();
+                if (article != "")
+                    BasicFunctions.addArticle(listActivity, article, listActivity.getList_name());
+            }
+        });
 
         return rootView;
     }
