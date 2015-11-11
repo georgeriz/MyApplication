@@ -68,7 +68,12 @@ public class ListActivity extends AppCompatActivity {
             list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
 
             dbHelper = new DBHelper(getApplicationContext());
-            terms = new ArrayList<>(Arrays.asList(dbHelper.getList(list_name)));
+            Term[] foo = dbHelper.getList(list_name);
+            if (foo == null) {
+                terms = new ArrayList<>();
+            } else {
+                terms = new ArrayList<>(Arrays.asList(foo));
+            }
             updatePrevious = false;
         } else {
             list_name = savedInstanceState.getString(LIST_NAME);

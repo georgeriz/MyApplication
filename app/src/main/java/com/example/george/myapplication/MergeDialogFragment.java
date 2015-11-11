@@ -11,21 +11,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-/**
- * Created by George on 2015-11-10.
- */
-public class MergeDialogFragment extends DialogFragment {
-    public static MergeDialogFragment newInstance(String[] languages) {
-        MergeDialogFragment fragment = new MergeDialogFragment();
-        Bundle args = new Bundle();
-        args.putStringArray("languages", languages);
-        fragment.setArguments(args);
-        return fragment;
-    }
+import java.util.ArrayList;
 
+public class MergeDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        String[] languages = getArguments().getStringArray("languages");
+        ArrayList<String> languages = ((MainActivity)getActivity()).list_names;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();

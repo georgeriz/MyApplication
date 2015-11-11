@@ -16,7 +16,8 @@ public final class BasicFunctions {
 
     final static int UPDATE_LIST_NAMES = 1;
 
-    private BasicFunctions(){}
+    private BasicFunctions() {
+    }
 
     public static void openActivity(Activity activity, Class<?> cls) {
         Intent open_activity_intent = new Intent(activity, cls);
@@ -39,35 +40,27 @@ public final class BasicFunctions {
         DBHelper dbHelper = new DBHelper(activity);
         Term[] terms_from = dbHelper.getList(language_from);
         Term[] terms_to = dbHelper.getList(language_to);
-        for(Term term_from: terms_from){
-            for(Term term_to: terms_to){
-                if(term_from.getWord().equals(term_to.getWord())){
-                    //update translation of term_to and delete term_from
-                    String new_translation = term_to.getTranslation() + ", " + term_from.getTranslation();
-                    term_to.setTranslation(new_translation);
-                    int new_degree = Math.min(term_from.getDegree(), term_to.getDegree());
-                    term_to.setDegree(new_degree);
-                    dbHelper.editWord(term_to);
-                    dbHelper.deleteWord(term_from.getID());
-                    break;
+        if (terms_from != null && terms_to != null)
+            for (Term term_from : terms_from) {
+                for (Term term_to : terms_to) {
+                    if (term_from.getWord().equals(term_to.getWord())) {
+                        //update translation of term_to and delete term_from
+                        String new_translation = term_to.getTranslation() + ", " + term_from.getTranslation();
+                        term_to.setTranslation(new_translation);
+                        int new_degree = Math.min(term_from.getDegree(), term_to.getDegree());
+                        term_to.setDegree(new_degree);
+                        dbHelper.editWord(term_to);
+                        dbHelper.deleteWord(term_from.getID());
+                        break;
+                    }
                 }
             }
-        }
         dbHelper.mergeLists(language_from, language_to);
     }
 
-    public static boolean renameFromToLanguageCheck(Activity activity, String language_from, String language_to) {
+    public static boolean renameFromToLanguage(Activity activity, String language_from, String language_to) {
         DBHelper dbHelper = new DBHelper(activity);
-        String[] lists_name = dbHelper.getLists();
-        for(String a_list_name:lists_name){
-            if(a_list_name.equals(language_to)){
-                Toast.makeText(activity, "This name already exists." +
-                        "Try merging the two lists instead.", Toast.LENGTH_LONG)
-                        .show();
-                return false;
-            }
-        }
-        dbHelper.mergeLists(language_from, language_to);
+        dbHelper.renameList(language_from, language_to);
         return true;
     }
 
@@ -79,5 +72,10 @@ public final class BasicFunctions {
     public static void deleteTerm(Activity activity, Term term) {
         DBHelper dbHelper = new DBHelper(activity);
         dbHelper.deleteWord(term.getID());
+    }
+
+    public static void addList(Activity activity, String list_name) {
+        DBHelper dbHelper = new DBHelper(activity);
+        dbHelper.addList(list_name);
     }
 }

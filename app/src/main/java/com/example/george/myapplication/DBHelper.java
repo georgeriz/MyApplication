@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "WordLists.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String TABLE_NAME = "words";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_WORD = "word";
@@ -57,10 +57,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    //TODO GO TO LANGUAGES TABLE
     public String[] getLists() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery("SELECT DISTINCT " + COLUMN_LANGUAGE + " FROM " + TABLE_NAME, null);
+        Cursor c = db.rawQuery("SELECT " + COLUMN_LANGUAGE + " FROM " + TABLE_LANGUAGE_NAME, null);
         if(c.getCount()<1){
             return null;
         }
@@ -139,6 +138,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean deleteWord(int termID) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(termID)});
+        db.close();
         return true;
     }
 
@@ -152,19 +152,34 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    //TODO ALSO CHANGE LANGUAGE TABLE
+
     public void deleteList(String language) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language});
+        db.delete(TABLE_LANGUAGE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language});
     }
 
-    //TODO ALSO CHANGE LANGUAGE TABLE
+
     public void mergeLists(String language_from, String language_to) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_LANGUAGE, language_to);
-        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[] {language_from});
+        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
+        db.delete(TABLE_LANGUAGE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
     }
 
-    //TODO ADD LIST (EMPTY)
+    public void renameList(String language_from, String language_to) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LANGUAGE, language_to);
+        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
+        db.update(TABLE_LANGUAGE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
+    }
+
+    public void addList(String list_name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LANGUAGE, list_name);
+        db.insert(TABLE_LANGUAGE_NAME, null, values);
+    }
 }

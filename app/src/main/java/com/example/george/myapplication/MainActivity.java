@@ -22,7 +22,6 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "myapp_info";
-    final static String STATE_LIST_NAMES = "state_list_names";
     final static String UPDATE_PREVIOUS = "update_previous";
     static DBHelper dbHelper;
     ArrayAdapter<String> list_names_array_adapter;
@@ -36,8 +35,9 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new DBHelper(this);
         String[] lists = dbHelper.getLists();
         if (lists == null) {
-            //deal with that
-            return;
+            list_names = new ArrayList<>();
+        } else {
+            list_names = new ArrayList<>(Arrays.asList(lists));
         }
 
         list_names_array_adapter = new ArrayAdapter<>(this,
@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         ListView list_name_listView = (ListView) findViewById(R.id.languagesListView);
         list_name_listView.setAdapter(list_names_array_adapter);
 
-        //listView click listener
         list_name_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -55,13 +54,18 @@ public class MainActivity extends AppCompatActivity {
                 BasicFunctions.openActivityForResult(MainActivity.this, ListActivity.class, list_name);
             }
         });
-    }
 
-    /*public void updateListNames() {
-        list_names.clear();
-        list_names.addAll(Arrays.asList(dbHelper.getLists()));
-        updateAdapter();
-    }*/
+        list_name_listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                ArrayAdapter<String> arrayAdapter = (ArrayAdapter) parent.getAdapter();
+                String list_name = arrayAdapter.getItem(position);
+                ActionsOnListFragment actionsOnListFragment = ActionsOnListFragment.newInstance(list_name);
+                actionsOnListFragment.show(getFragmentManager(), "actions_on_list");
+                return false;
+            }
+        });
+    }
 
     public void updateAdapter() {
         list_names_array_adapter.notifyDataSetChanged();
@@ -69,6 +73,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void doMergeSuccessful(String language_from) {
         list_names.remove(language_from);
+        updateAdapter();
+    }
+
+    public void doAddListSuccessful(String list_name) {
+        list_names.add(list_name);
+        updateAdapter();
+    }
+
+    public void doDeleteSuccessful(String list_name) {
+        list_names.remove(list_name);
+        updateAdapter();
+    }
+
+    public void doRenameSuccessful(String language_from, String language_to) {
+        list_names.set(list_names.indexOf(language_from), language_to);
         updateAdapter();
     }
 
@@ -90,12 +109,14 @@ public class MainActivity extends AppCompatActivity {
                 BasicFunctions.openActivity(MainActivity.this, SettingsActivity.class);
                 break;
             case R.id.action_add:
-                AddListFragment addListFragment = AddListFragment.newInstance((String[])list_names.toArray());
+                AddListFragment addListFragment = new AddListFragment();
                 addListFragment.show(getFragmentManager(), "add_list");
                 break;
             case R.id.action_merge:
-                MergeDialogFragment mergeDialogFragment = MergeDialogFragment.newInstance((String[])list_names.toArray());
-                mergeDialogFragment.show(getFragmentManager(), "merge");
+                if (!list_names.isEmpty()) {
+                    MergeDialogFragment mergeDialogFragment = new MergeDialogFragment();
+                    mergeDialogFragment.show(getFragmentManager(), "merge");
+                }
                 break;
             default:
                 break;

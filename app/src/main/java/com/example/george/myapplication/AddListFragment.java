@@ -12,19 +12,8 @@ import android.widget.Toast;
  * Created by George on 2015-11-10.
  */
 public class AddListFragment extends DialogFragment {
-
-    public static AddListFragment newInstance(String[] languages) {
-        AddListFragment fragment = new AddListFragment();
-        Bundle args = new Bundle();
-        args.putStringArray("languages", languages);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final String[] languages = getArguments().getStringArray("languages");
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final EditText listNameEditText = new EditText(getActivity());
         builder.setView(listNameEditText);
@@ -32,15 +21,17 @@ public class AddListFragment extends DialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String new_list_name = listNameEditText.getText().toString().trim();
-                        for(String list_name: languages){
+                        for(String list_name: ((MainActivity)getActivity()).list_names){
                             if(list_name.equals(new_list_name)) {
                                 Toast.makeText(getActivity(), "This already exists", Toast.LENGTH_LONG)
                                         .show();
                                 return;
                             }
                         }
-                        //TODO Create new list
-                        //TODO update local data
+                        //Create new list
+                        BasicFunctions.addList(getActivity(), new_list_name);
+                        //update local data
+                        ((MainActivity) getActivity()).doAddListSuccessful(new_list_name);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

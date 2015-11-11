@@ -6,10 +6,9 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class RenameDialogFragment extends DialogFragment {
-    String list_name;
-    EditText listNameEditText;
 
     public static RenameDialogFragment newInstance(String list_name) {
         RenameDialogFragment f = new RenameDialogFragment();
@@ -21,23 +20,25 @@ public class RenameDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if(savedInstanceState==null){
-            list_name = getArguments().getString("list_name");
-        }else{
-            list_name = savedInstanceState.getString("list_name");
-        }
+        final String list_name = getArguments().getString("list_name");
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        listNameEditText = new EditText(getActivity());
+        final EditText listNameEditText = new EditText(getActivity());
         listNameEditText.setText(list_name);
         builder.setView(listNameEditText);
-        builder.setMessage("Edit name")
+        builder.setMessage("Give a name for the new list")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String new_list_name = listNameEditText.getText().toString().trim();
-                        if(BasicFunctions.renameFromToLanguageCheck(getActivity(),
-                                list_name, new_list_name)){
-                            ((ListActivity) getActivity()).onDialogPositiveClick(new_list_name);
+                        for (String a_list : ((MainActivity) getActivity()).list_names) {
+                            if (a_list.equals(new_list_name)) {
+                                Toast.makeText(getActivity(), "This name already exists." +
+                                        "Try merging the two lists instead.", Toast.LENGTH_LONG)
+                                        .show();
+                                return;
+                            }
                         }
+                        BasicFunctions.renameFromToLanguage(getActivity(), list_name, new_list_name);
+                        ((MainActivity)getActivity()).doRenameSuccessful(list_name, new_list_name);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -47,11 +48,5 @@ public class RenameDialogFragment extends DialogFragment {
                 });
         // Create the AlertDialog object and return it
         return builder.create();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-        state.putString("list_name", listNameEditText.getText().toString());
     }
 }
