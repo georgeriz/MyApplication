@@ -9,7 +9,6 @@ import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -42,23 +41,31 @@ public class ListActivity extends AppCompatActivity {
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                 viewPager.setCurrentItem(tab.getPosition());
             }
+
             @Override
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {}
+            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+            }
+
             @Override
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {}
+            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+            }
         };
         actionBar.addTab(actionBar.newTab().setText("General").setTabListener(tabListener));
         actionBar.addTab(actionBar.newTab().setText("Full list").setTabListener(tabListener));
 
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
             }
+
             @Override
-            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrollStateChanged(int state) {
+            }
         });
         mAdapter = new FragmentAdapter(getSupportFragmentManager());
         viewPager.setAdapter(mAdapter);
@@ -87,8 +94,8 @@ public class ListActivity extends AppCompatActivity {
 
     public int getProgress() {
         int progress_count = 0;
-        for(Term term: terms) {
-            if(term.getDegree() == 1000) {
+        for (Term term : terms) {
+            if (term.getDegree() == 1000) {
                 progress_count++;
             }
         }
@@ -104,11 +111,10 @@ public class ListActivity extends AppCompatActivity {
         DBHelper dbHelper = new DBHelper(getApplicationContext());
         terms.addAll(Arrays.asList(dbHelper.getList(list_name)));*/
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        for(Fragment fragment: fragments){
-            if(fragment instanceof GeneralFragment){
+        for (Fragment fragment : fragments) {
+            if (fragment instanceof GeneralFragment) {
                 ((GeneralFragment) fragment).updateProgress(getSize(), getProgress());
-            }else if(fragment instanceof FullListFragment){
-                Log.i(MainActivity.TAG, "updateList");
+            } else if (fragment instanceof FullListFragment) {
                 ((FullListFragment) fragment).updateList();
             }
         }
@@ -151,20 +157,18 @@ public class ListActivity extends AppCompatActivity {
         if (requestCode == BasicFunctions.EDIT_TERM && resultCode == RESULT_OK) {
             boolean isDelete = data.getBooleanExtra("DEL", false);
             Term foo = data.getParcelableExtra("BAR");
-            if (isDelete){
-                Log.i(MainActivity.TAG, "isDelete true");
-                //TODO delete doesn't update TermAdapter (with notifyDataSetChanged)
-                terms.remove(foo);
-            } else {
-                for (Term t : terms) {
-                    if (t.getID() == foo.getID()) {
+            for (Term t : terms) {
+                if (t.getID() == foo.getID()) {
+                    if(isDelete){
+                        terms.remove(t);
+                    }else {
                         terms.set(terms.indexOf(t), foo);
-                        break;
                     }
+                    break;
                 }
             }
         } else if (requestCode == BasicFunctions.ADD_TERMS && resultCode == RESULT_OK) {
-            ArrayList<Term> newTerms =  data.getParcelableArrayListExtra("FOO");
+            ArrayList<Term> newTerms = data.getParcelableArrayListExtra("FOO");
             terms.addAll(newTerms);
         }
         updateTerms();
@@ -180,7 +184,7 @@ public class ListActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             if (position == 0) {
                 return new GeneralFragment();
-            } else if (position == 1){
+            } else if (position == 1) {
                 return new FullListFragment();
             }
             return null;
