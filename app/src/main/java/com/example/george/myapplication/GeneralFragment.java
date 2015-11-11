@@ -52,7 +52,10 @@ public class GeneralFragment extends Fragment {
             public void onClick(View v) {
                 DBHelper dbHelper = new DBHelper(listActivity);
                 dbHelper.resetLearningProcess(listActivity.getList_name());
-                updateProgress(listActivity.getSize(), 0);
+                for (Term t: listActivity.terms) {
+                    t.setDegree(0);
+                }
+                listActivity.updateTerms();
             }
         });
 

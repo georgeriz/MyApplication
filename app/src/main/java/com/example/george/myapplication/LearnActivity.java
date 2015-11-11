@@ -83,6 +83,7 @@ public class LearnActivity extends AppCompatActivity {
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.updateDegree(term.getID(), term.getDegree());
                     termsList.remove(term);
+                    //setResult(RESULT_OK);
                 }
             }
         });
@@ -123,6 +124,7 @@ public class LearnActivity extends AppCompatActivity {
             if (selectNextWord())
                 displayNextWord();
         }
+        setResult(RESULT_OK);
     }
 
     private String constructUserInput(String guessInput, int radio_id) {
@@ -215,11 +217,5 @@ public class LearnActivity extends AppCompatActivity {
                 radioGroup.addView(radioButton);
             }
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        setResult(RESULT_OK);
     }
 }
