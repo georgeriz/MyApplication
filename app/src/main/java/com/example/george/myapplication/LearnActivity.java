@@ -114,10 +114,7 @@ public class LearnActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             term = savedInstanceState.getParcelable(STATE_TERM);
             termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
-            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
-            if (updatePrevious) {
-                setResult(RESULT_OK);
-            }
+
             wasWordChecked = savedInstanceState.getBoolean(WORD_CHECKED_TAG);
             wasCorrect = savedInstanceState.getBoolean(CORRECT_TAG);
             if (wasWordChecked) {
@@ -208,7 +205,6 @@ public class LearnActivity extends AppCompatActivity {
         super.onSaveInstanceState(state);
         state.putParcelable(STATE_TERM, term);
         state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
-        state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
         state.putBoolean(WORD_CHECKED_TAG, wasWordChecked);
         state.putBoolean(CORRECT_TAG, wasCorrect);
     }

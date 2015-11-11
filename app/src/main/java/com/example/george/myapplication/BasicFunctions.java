@@ -2,7 +2,6 @@ package com.example.george.myapplication;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.widget.Toast;
 
 /**
  * Created by George on 2015-10-10.
@@ -14,7 +13,9 @@ public final class BasicFunctions {
 
     static final String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
 
-    final static int UPDATE_LIST_NAMES = 1;
+    final static int EDIT_TERM = 1;
+
+    final static int ADD_TERMS = 2;
 
     private BasicFunctions() {
     }
@@ -24,16 +25,22 @@ public final class BasicFunctions {
         activity.startActivity(open_activity_intent);
     }
 
+    public static void openActivity(Activity activity, Class<?> cls, String list_name) {
+        Intent open_activity_intent = new Intent(activity, cls);
+        open_activity_intent.putExtra(LIST_NAME, list_name);
+        activity.startActivity(open_activity_intent);
+    }
+
     public static void openActivityForResult(Activity activity, Class<?> cls, String list_name) {
         Intent open_activity_intent = new Intent(activity, cls);
         open_activity_intent.putExtra(LIST_NAME, list_name);
-        activity.startActivityForResult(open_activity_intent, UPDATE_LIST_NAMES);
+        activity.startActivityForResult(open_activity_intent, ADD_TERMS);
     }
 
     public static void openActivityForResultWithTerm(Activity activity, Class<?> cls, Term term) {
         Intent open_list_activity_intent = new Intent(activity, cls);
         open_list_activity_intent.putExtra(EXTRA_NAME_TERM, term);
-        activity.startActivityForResult(open_list_activity_intent, UPDATE_LIST_NAMES);
+        activity.startActivityForResult(open_list_activity_intent, EDIT_TERM);
     }
 
     public static void mergeFromToLanguageSafe(Activity activity, String language_from, String language_to) {

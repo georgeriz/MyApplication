@@ -45,7 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean insertWord (String word, String translation, String language) {
+    public int insertWord (String word, String translation, String language) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_WORD, word);
@@ -53,8 +53,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DEGREE, 0);
         values.put(COLUMN_LANGUAGE, language);
 
-        db.insert(TABLE_NAME, null, values);
-        return true;
+        return (int) db.insert(TABLE_NAME, null, values);
     }
 
     public String[] getLists() {

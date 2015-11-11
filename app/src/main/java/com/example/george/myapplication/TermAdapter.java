@@ -75,10 +75,10 @@ public class TermAdapter extends ArrayAdapter<Term> {
         TextView translationText;
     }
 
-    public void replaceTerms(Term[] newTerms) {
+    /*public void replaceTerms(Term[] newTerms) {
         terms = new ArrayList<>(Arrays.asList(newTerms));
         original_terms = terms;
-    }
+    }*/
 
     public Filter getFilter() {
         return new Filter() {

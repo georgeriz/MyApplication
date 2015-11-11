@@ -1,29 +1,19 @@
 package com.example.george.myapplication;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "myapp_info";
-    final static String UPDATE_PREVIOUS = "update_previous";
-    static DBHelper dbHelper;
     ArrayAdapter<String> list_names_array_adapter;
     ArrayList<String> list_names;
 
@@ -32,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new DBHelper(this);
+        DBHelper dbHelper = new DBHelper(this);
         String[] lists = dbHelper.getLists();
         if (lists == null) {
             list_names = new ArrayList<>();
@@ -51,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArrayAdapter<String> arrayAdapter = (ArrayAdapter) parent.getAdapter();
                 String list_name = arrayAdapter.getItem(position);
-                BasicFunctions.openActivityForResult(MainActivity.this, ListActivity.class, list_name);
+                BasicFunctions.openActivity(MainActivity.this, ListActivity.class, list_name);
             }
         });
 

@@ -44,7 +44,9 @@ public class EditActivity extends AppCompatActivity {
                     term.setDegree(myDegree);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.editWord(term);
-                    setResult(RESULT_OK);
+                    Intent result_intent = new Intent();
+                    result_intent.putExtra("BAR", term);
+                    setResult(RESULT_OK, result_intent);
                     finish();
                 }
             }
@@ -61,13 +63,13 @@ public class EditActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if(id == R.id.delete_word) {
             BasicFunctions.deleteTerm(EditActivity.this, term);
-            setResult(RESULT_OK);
+            Intent result_intent = new Intent();
+            result_intent.putExtra("DEL", true);
+            result_intent.putExtra("BAR", term);
+            setResult(RESULT_OK, result_intent);
             finish();
         }
 

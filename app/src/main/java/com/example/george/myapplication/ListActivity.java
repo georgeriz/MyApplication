@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,7 +25,6 @@ public class ListActivity extends AppCompatActivity {
     ViewPager viewPager;
     ArrayList<Term> terms;
     FragmentAdapter mAdapter;
-    private boolean updatePrevious;
 
     @Override
     @SuppressWarnings("deprecation")
@@ -74,14 +74,9 @@ public class ListActivity extends AppCompatActivity {
             } else {
                 terms = new ArrayList<>(Arrays.asList(foo));
             }
-            updatePrevious = false;
         } else {
             list_name = savedInstanceState.getString(LIST_NAME);
             terms = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
-            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
-            if(updatePrevious){
-                setResult(RESULT_OK);
-            }
         }
         setTitle(list_name);
     }
@@ -105,26 +100,18 @@ public class ListActivity extends AppCompatActivity {
     }
 
     public void updateTerms() {
-        terms.clear();
+        /*terms.clear();
         DBHelper dbHelper = new DBHelper(getApplicationContext());
-        terms.addAll(Arrays.asList(dbHelper.getList(list_name)));
+        terms.addAll(Arrays.asList(dbHelper.getList(list_name)));*/
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         for(Fragment fragment: fragments){
             if(fragment instanceof GeneralFragment){
                 ((GeneralFragment) fragment).updateProgress(getSize(), getProgress());
             }else if(fragment instanceof FullListFragment){
+                Log.i(MainActivity.TAG, "updateList");
                 ((FullListFragment) fragment).updateList();
             }
         }
-        /*GeneralFragment generalFragment = (GeneralFragment) mAdapter.getRegisteredFragment(0);
-        if(generalFragment!=null){
-            Log.i(MainActivity.TAG, "ListActivity: updateTerms, generalFragment");
-            generalFragment.updateProgress(getSize(), getProgress());
-        }
-        FullListFragment frag = (FullListFragment) mAdapter.getRegisteredFragment(1);
-        if(frag!=null) {
-            frag.updateList();
-        }*/
     }
 
     @Override
@@ -143,18 +130,8 @@ public class ListActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_settings:
-                BasicFunctions.openActivityForResult(ListActivity.this, SettingsActivity.class,
-                        list_name);
+                BasicFunctions.openActivity(ListActivity.this, SettingsActivity.class);
                 break;
-            case R.id.action_rename:
-                RenameDialogFragment renameDialogFragment = RenameDialogFragment.newInstance(list_name);
-                renameDialogFragment.show(getFragmentManager(), "rename");
-                break;
-            case R.id.action_delete:
-                BasicFunctions.deleteList(ListActivity.this, list_name);
-                updatePrevious = true;
-                setResult(RESULT_OK);
-                finish();
             default:
                 break;
         }
@@ -167,27 +144,33 @@ public class ListActivity extends AppCompatActivity {
         super.onSaveInstanceState(state);
         state.putString(LIST_NAME, list_name);
         state.putParcelableArrayList(STATE_TERMS_LIST, terms);
-        state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
-            updatePrevious = true;
-            setResult(RESULT_OK);
-            updateTerms();
+        if (requestCode == BasicFunctions.EDIT_TERM && resultCode == RESULT_OK) {
+            boolean isDelete = data.getBooleanExtra("DEL", false);
+            Term foo = data.getParcelableExtra("BAR");
+            if (isDelete){
+                Log.i(MainActivity.TAG, "isDelete true");
+                //TODO delete doesn't update TermAdapter (with notifyDataSetChanged)
+                terms.remove(foo);
+            } else {
+                for (Term t : terms) {
+                    if (t.getID() == foo.getID()) {
+                        terms.set(terms.indexOf(t), foo);
+                        break;
+                    }
+                }
+            }
+        } else if (requestCode == BasicFunctions.ADD_TERMS && resultCode == RESULT_OK) {
+            ArrayList<Term> newTerms =  data.getParcelableArrayListExtra("FOO");
+            terms.addAll(newTerms);
         }
-    }
-
-    public void onDialogPositiveClick(String new_list_name) {
-        list_name = new_list_name;
-        setTitle(list_name);
-        updatePrevious = true;
-        setResult(RESULT_OK);
+        updateTerms();
     }
 
     public class FragmentAdapter extends FragmentPagerAdapter {
-        //SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
         public FragmentAdapter(FragmentManager fm) {
             super(fm);
@@ -207,27 +190,5 @@ public class ListActivity extends AppCompatActivity {
         public int getCount() {
             return 2;
         }
-
-        //Needed in order to return the single two fragments
-        //and not create new ones
-        /*@Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            Fragment fragment = (Fragment) super.instantiateItem(container, position);
-            Log.i(MainActivity.TAG, "ListActivity: instantiateItem");
-            registeredFragments.put(position, fragment);
-            return fragment;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            registeredFragments.remove(position);
-            super.destroyItem(container, position, object);
-        }
-
-        public Fragment getRegisteredFragment(int position) {
-            return registeredFragments.get(position);
-        }*/
     }
-
-
 }
