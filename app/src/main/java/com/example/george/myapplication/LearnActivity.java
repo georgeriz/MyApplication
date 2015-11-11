@@ -42,7 +42,6 @@ public class LearnActivity extends AppCompatActivity {
     final static int CORRECT_COLOR = Color.GREEN;
     final static int WRONG_COLOR = Color.RED;
     final static int NEUTRAL_COLOR = Color.parseColor("#3399FF");
-    private boolean updatePrevious;
     InputMethodManager imm;
     private boolean wasWordChecked;
     private boolean wasCorrect;
@@ -83,8 +82,6 @@ public class LearnActivity extends AppCompatActivity {
                     term.updateDegree(isCorrect);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.updateDegree(term.getID(), term.getDegree());
-                    updatePrevious = true;
-                    setResult(RESULT_OK);
                     termsList.remove(term);
                 }
             }
@@ -114,10 +111,7 @@ public class LearnActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             term = savedInstanceState.getParcelable(STATE_TERM);
             termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
-            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
-            if (updatePrevious) {
-                setResult(RESULT_OK);
-            }
+
             wasWordChecked = savedInstanceState.getBoolean(WORD_CHECKED_TAG);
             wasCorrect = savedInstanceState.getBoolean(CORRECT_TAG);
             if (wasWordChecked) {
@@ -126,7 +120,6 @@ public class LearnActivity extends AppCompatActivity {
                 displayNextWord();
             }
         } else {
-            updatePrevious = false;
             if (selectNextWord())
                 displayNextWord();
         }
@@ -208,7 +201,6 @@ public class LearnActivity extends AppCompatActivity {
         super.onSaveInstanceState(state);
         state.putParcelable(STATE_TERM, term);
         state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
-        state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
         state.putBoolean(WORD_CHECKED_TAG, wasWordChecked);
         state.putBoolean(CORRECT_TAG, wasCorrect);
     }
@@ -223,5 +215,11 @@ public class LearnActivity extends AppCompatActivity {
                 radioGroup.addView(radioButton);
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        setResult(RESULT_OK);
     }
 }

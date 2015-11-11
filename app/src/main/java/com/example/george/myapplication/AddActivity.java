@@ -7,106 +7,85 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class AddActivity extends AppCompatActivity {
-    final static String STATE_LISTS_NAMES = "lists_names";
     EditText wordInput;
     EditText translationInput;
-    AutoCompleteTextView languageInput;
     Button saveButton;
-    String[] lists_names;
+    String list_name;
     InputMethodManager imm;
-    private boolean updatePrevious;
+    Term[] terms;
+    ArrayList<Term> newTerms = new ArrayList<>();
+    ArrayList<Term> editedTerms = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
 
-
         wordInput = (EditText) findViewById(R.id.word_input);
         translationInput = (EditText) findViewById(R.id.translation_input);
-        languageInput = (AutoCompleteTextView) findViewById(R.id.language_input);
         saveButton = (Button)  findViewById(R.id.save_button);
 
-        //for the autoComplete of the languages
-        if (savedInstanceState == null) {
-            DBHelper dbHelper = new DBHelper(getApplicationContext());
-            lists_names = dbHelper.getLists();
-            updatePrevious = false;
-        } else {
-            lists_names = savedInstanceState.getStringArray(STATE_LISTS_NAMES);
-            updatePrevious = savedInstanceState.getBoolean(MainActivity.UPDATE_PREVIOUS);
-            if(updatePrevious){
-                setResult(RESULT_OK);
-            }
-        }
-        if(lists_names==null)return;
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, lists_names);
-        languageInput.setAdapter(adapter);
-        languageInput.setThreshold(1);
-
         Intent intent = getIntent();
-        String list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
+        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
+
+        DBHelper dbHelper = new DBHelper(getApplicationContext());
+        terms = dbHelper.getList(list_name);
 
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
-        saveNewWord(list_name);
-    }
-
-    private void saveNewWord(final String list_name) {
-        wordInput.setText("");
-        wordInput.requestFocus();
-        imm.showSoftInput(wordInput, InputMethodManager.SHOW_IMPLICIT);
-        translationInput.setText("");
-        languageInput.setText(list_name);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String word = wordInput.getText().toString().trim();
                 String translation = translationInput.getText().toString().trim();
-                String language = languageInput.getText().toString().trim();
-                if (!(word.equals("") || translation.equals("") || language.equals(""))) {
-                    DBHelper dbHelper = new DBHelper(getApplicationContext());
-                    Term[] terms = dbHelper.getList(language);
+                if (!(word.equals("") || translation.equals(""))) {
                     if (terms != null) {
                         for (Term term : terms) {
                             if (term.getWord().equals(word)) {
-                                AlreadyExistsDialogFragment alreadyExistsDialogFragment = new AlreadyExistsDialogFragment();
+                                /*AlreadyExistsDialogFragment alreadyExistsDialogFragment = new AlreadyExistsDialogFragment();
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelable("myTerm", term);
                                 alreadyExistsDialogFragment.setArguments(bundle);
-                                alreadyExistsDialogFragment.show(getFragmentManager(), "alreadyExists");
-                                saveNewWord(language);
+                                alreadyExistsDialogFragment.show(getFragmentManager(), "alreadyExists");*/
+                                Toast.makeText(getApplicationContext(), "This word already exists, " +
+                                        "so it cannot be added. Try editing.", Toast.LENGTH_LONG).show();
+                                saveNewWord();
                                 return;
                             }
                         }
                     }
-                    dbHelper.insertWord(word, translation, language);
-                    updatePrevious = true;
-                    setResult(RESULT_OK);
-                    saveNewWord(language);
+                    DBHelper dbHelper = new DBHelper(getApplicationContext());
+                    int id = dbHelper.insertWord(word, translation, list_name);
+                    Term new_term = new Term(id, word, translation, 0);
+                    newTerms.add(new_term);
+                    Intent result_intent = new Intent();
+                    result_intent.putExtra("FOO", newTerms);
+                    setResult(RESULT_OK, result_intent);
+                    saveNewWord();
                 }
             }
         });
+
+        saveNewWord();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-        state.putStringArray(STATE_LISTS_NAMES, lists_names);
-        state.putBoolean(MainActivity.UPDATE_PREVIOUS, updatePrevious);
+    private void saveNewWord() {
+        wordInput.setText("");
+        wordInput.requestFocus();
+        imm.showSoftInput(wordInput, InputMethodManager.SHOW_IMPLICIT);
+        translationInput.setText("");
     }
 
-    public static class AlreadyExistsDialogFragment extends DialogFragment {
+    /*public static class AlreadyExistsDialogFragment extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -128,13 +107,12 @@ public class AddActivity extends AppCompatActivity {
             });
             return builder.create();
         }
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BasicFunctions.UPDATE_LIST_NAMES && resultCode == RESULT_OK) {
-            updatePrevious = true;
-            setResult(RESULT_OK);
+        if (requestCode == BasicFunctions.EDIT_TERM && resultCode == RESULT_OK) {
+            setResult(RESULT_OK, data);
         }
-    }
+    }*/
 }

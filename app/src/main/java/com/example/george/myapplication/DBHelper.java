@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 /**
  * Created by George on 2015-09-21.
@@ -13,13 +12,15 @@ import android.util.Log;
  */
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "WordLists.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String TABLE_NAME = "words";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_WORD = "word";
     public static final String COLUMN_TRANSLATION = "translation";
     public static final String COLUMN_DEGREE = "degree";
     public static final String COLUMN_LANGUAGE = "language";
+
+    public static final String TABLE_LANGUAGE_NAME = "languages";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,6 +33,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_WORD + " TEXT, " + COLUMN_TRANSLATION + " TEXT, " +
                 COLUMN_DEGREE + " INTEGER, " + COLUMN_LANGUAGE + " TEXT)";
         db.execSQL(SQL_CREATE_WORD_TABLE);
+
+        String SQL_CREATE_LANGUAGE_TABLE = "CREATE TABLE " + TABLE_LANGUAGE_NAME + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY, " + COLUMN_LANGUAGE + " TEXT)";
+        db.execSQL(SQL_CREATE_LANGUAGE_TABLE);
     }
 
     @Override
@@ -40,7 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean insertWord (String word, String translation, String language) {
+    public int insertWord (String word, String translation, String language) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_WORD, word);
@@ -48,13 +53,12 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DEGREE, 0);
         values.put(COLUMN_LANGUAGE, language);
 
-        db.insert(TABLE_NAME, null, values);
-        return true;
+        return (int) db.insert(TABLE_NAME, null, values);
     }
 
     public String[] getLists() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery("SELECT DISTINCT " + COLUMN_LANGUAGE + " FROM " + TABLE_NAME, null);
+        Cursor c = db.rawQuery("SELECT " + COLUMN_LANGUAGE + " FROM " + TABLE_LANGUAGE_NAME, null);
         if(c.getCount()<1){
             return null;
         }
@@ -133,6 +137,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean deleteWord(int termID) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(termID)});
+        db.close();
         return true;
     }
 
@@ -146,15 +151,34 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
+
     public void deleteList(String language) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language});
+        db.delete(TABLE_LANGUAGE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language});
     }
+
 
     public void mergeLists(String language_from, String language_to) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_LANGUAGE, language_to);
-        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[] {language_from});
+        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
+        db.delete(TABLE_LANGUAGE_NAME, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
+    }
+
+    public void renameList(String language_from, String language_to) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LANGUAGE, language_to);
+        db.update(TABLE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
+        db.update(TABLE_LANGUAGE_NAME, values, COLUMN_LANGUAGE + " = ?", new String[]{language_from});
+    }
+
+    public void addList(String list_name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LANGUAGE, list_name);
+        db.insert(TABLE_LANGUAGE_NAME, null, values);
     }
 }
