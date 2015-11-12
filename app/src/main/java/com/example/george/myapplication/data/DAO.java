@@ -95,17 +95,6 @@ public class DAO {
         return result;
     }
 
-    public String[] getArticles(String language) {
-        String foo = getPrefix(language);
-        if (foo == null)
-            return null;
-        String[] bar = foo.split(",");
-        for (int i = 0; i < bar.length; i++) {
-            bar[i] = bar[i].trim();
-        }
-        return bar;
-    }
-
     public int addWord (String word, String translation, String language) {
         ContentValues values = new ContentValues();
         values.put(DBHelper.COLUMN_WORD, word);

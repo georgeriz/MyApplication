@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.example.george.myapplication.data.Term;
 
+import java.util.List;
+
 public class GeneralFragment extends Fragment {
     TextView progressPercentage;
     ProgressBar listProgressBar;
@@ -21,7 +23,7 @@ public class GeneralFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_general, container, false);
@@ -31,11 +33,13 @@ public class GeneralFragment extends Fragment {
         Button resetButton = (Button) rootView.findViewById(R.id.resetLearningProgressButton);
 
         listActivity = (ListActivity) getActivity();
+
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), LearnActivity.class);
                 intent.putExtra(ListActivity.LIST_NAME, listActivity.getList_name());
+                intent.putExtra(ListActivity.ARTICLES, listActivity.getArticles());
                 getActivity().startActivityForResult(intent, LearnActivity.LEARN_CODE);
             }
         });

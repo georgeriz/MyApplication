@@ -28,7 +28,6 @@ public class LearnActivity extends AppCompatActivity {
     final static String STATE_WORD_CHECKED = "if_it_was_checked";
     final static String STATE_TERM = "term";
     final static String STATE_TERMS_LIST = "terms list";
-    final static String STATE_ARTICLES = "articles";
     final static int LEARN_CODE = 3;
     final static int CORRECT_COLOR = Color.GREEN;
     final static int WRONG_COLOR = Color.RED;
@@ -67,10 +66,10 @@ public class LearnActivity extends AppCompatActivity {
         resultBox = (LinearLayout) findViewById(R.id.learn_background);
         radioGroup = (RadioGroup) findViewById(R.id.radio_group);
 
-
         Intent intent = getIntent();
         list_name = intent.getStringExtra(ListActivity.LIST_NAME);
         setTitle(list_name);
+        articles = intent.getStringArrayExtra(ListActivity.ARTICLES);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showTranslationFirst = settings.getBoolean("show_translation", true);
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -109,7 +108,6 @@ public class LearnActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             termsList = new ArrayList<>();
-            articles = dbVan.getArticles(list_name);
             wasCorrect = false;
             wasWordChecked = false;
             if (selectNextWord())
@@ -117,7 +115,6 @@ public class LearnActivity extends AppCompatActivity {
         } else {
             term = savedInstanceState.getParcelable(STATE_TERM);
             termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
-            articles = savedInstanceState.getStringArray(STATE_ARTICLES);
             wasWordChecked = savedInstanceState.getBoolean(STATE_WORD_CHECKED);
             wasCorrect = savedInstanceState.getBoolean(STATE_CORRECT);
             if (wasWordChecked) {
@@ -211,7 +208,6 @@ public class LearnActivity extends AppCompatActivity {
         state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
         state.putBoolean(STATE_WORD_CHECKED, wasWordChecked);
         state.putBoolean(STATE_CORRECT, wasCorrect);
-        state.putStringArray(STATE_ARTICLES, articles);
     }
 
     @Override

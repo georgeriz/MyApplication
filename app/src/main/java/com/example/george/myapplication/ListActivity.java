@@ -22,6 +22,7 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity {
     final public static String LIST_NAME = "com.example.george.myapplication.LIST_NAME";
     final public static String TERM = "com.example.george.myapplicaiton.TERM";
+    final public static String ARTICLES = "com.example.george.myapplication.ARTICLES";
     static final String STATE_LIST_NAME = "list_name";
     static final String STATE_TERMS_LIST = "terms_list";
     static final String STATE_ARTICLE = "article";
@@ -114,6 +115,16 @@ public class ListActivity extends AppCompatActivity {
 
     public int getSize() {
         return terms.size();
+    }
+
+    public String[] getArticles() {
+        if (article == null)
+            return null;
+        String[] articles = article.split(",");
+        for (int i = 0; i < articles.length; i++) {
+            articles[i] = articles[i].trim();
+        }
+        return articles;
     }
 
     public void resetLearningProgress() {
