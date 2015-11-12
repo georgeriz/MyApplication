@@ -11,6 +11,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.george.myapplication.data.BasicFunctions;
+
 import java.util.ArrayList;
 
 public class MergeDialogFragment extends DialogFragment {

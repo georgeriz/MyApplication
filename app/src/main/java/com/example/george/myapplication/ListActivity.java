@@ -9,9 +9,12 @@ import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.example.george.myapplication.data.BasicFunctions;
+import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.Term;
 
 import java.util.ArrayList;
 import java.util.Arrays;

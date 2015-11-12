@@ -1,7 +1,10 @@
-package com.example.george.myapplication;
+package com.example.george.myapplication.data;
 
 import android.app.Activity;
 import android.content.Intent;
+
+import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.Term;
 
 /**
  * Created by George on 2015-10-10.
@@ -9,13 +12,13 @@ import android.content.Intent;
  */
 public final class BasicFunctions {
 
-    final static String LIST_NAME = "com.example.george.myapplication.LIST_NAME";
+    final public static String LIST_NAME = "com.example.george.myapplication.LIST_NAME";
 
-    static final String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
+    final public static String EXTRA_NAME_TERM = "com.example.george.myapplicaiton.TERM_EXTRA";
 
-    final static int EDIT_TERM = 1;
+    final public static int EDIT_TERM = 1;
 
-    final static int ADD_TERMS = 2;
+    final public static int ADD_TERMS = 2;
 
     private BasicFunctions() {
     }

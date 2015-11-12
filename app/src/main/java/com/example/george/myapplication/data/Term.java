@@ -1,4 +1,4 @@
-package com.example.george.myapplication;
+package com.example.george.myapplication.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -1,9 +1,8 @@
-package com.example.george.myapplication;
+package com.example.george.myapplication.data;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +10,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.TextView;
 
+import com.example.george.myapplication.R;
+import com.example.george.myapplication.data.Term;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by George on 2015-10-09.

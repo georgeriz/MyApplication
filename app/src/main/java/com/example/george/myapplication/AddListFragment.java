@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.george.myapplication.data.BasicFunctions;
+
 /**
  * Created by George on 2015-11-10.
  */

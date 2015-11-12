@@ -1,20 +1,19 @@
 package com.example.george.myapplication;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
+
+import com.example.george.myapplication.data.BasicFunctions;
+import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.Term;
 
 public class GeneralFragment extends Fragment {
     TextView progressPercentage;

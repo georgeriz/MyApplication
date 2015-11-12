@@ -10,6 +10,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import com.example.george.myapplication.data.BasicFunctions;
+import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.Term;
+
 public class EditActivity extends AppCompatActivity {
     Term term;
 

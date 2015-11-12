@@ -17,6 +17,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.george.myapplication.data.BasicFunctions;
+import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.Term;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;

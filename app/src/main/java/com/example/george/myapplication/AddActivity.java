@@ -1,9 +1,5 @@
 package com.example.george.myapplication;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +8,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.george.myapplication.data.BasicFunctions;
+import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.Term;
 
 import java.util.ArrayList;
 
