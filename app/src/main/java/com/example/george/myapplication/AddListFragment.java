@@ -8,11 +8,6 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.george.myapplication.data.BasicFunctions;
-
-/**
- * Created by George on 2015-11-10.
- */
 public class AddListFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -30,9 +25,6 @@ public class AddListFragment extends DialogFragment {
                                 return;
                             }
                         }
-                        //Create new list
-                        BasicFunctions.addList(getActivity(), new_list_name);
-                        //update local data
                         ((MainActivity) getActivity()).doAddListSuccessful(new_list_name);
                     }
                 })

@@ -6,7 +6,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-import com.example.george.myapplication.data.BasicFunctions;
+import com.example.george.myapplication.data.DAO;
 
 public class ActionsOnListFragment extends DialogFragment {
 
@@ -36,8 +36,9 @@ public class ActionsOnListFragment extends DialogFragment {
                         renameDialogFragment.show(getFragmentManager(), "rename");
                         break;
                     case 1:
-                        BasicFunctions.deleteList(getActivity(), list_name);
-                        ((MainActivity)getActivity()).doDeleteSuccessful(list_name);
+                        DAO dao = new DAO(getActivity());
+                        dao.deleteList(list_name);
+                        dao.close();
                         break;
                     default:
                         break;

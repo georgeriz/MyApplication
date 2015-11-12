@@ -3,19 +3,21 @@ package com.example.george.myapplication;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.george.myapplication.data.BasicFunctions;
-import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.DAO;
 import com.example.george.myapplication.data.Term;
 
 import java.util.ArrayList;
 
 public class AddActivity extends AppCompatActivity {
+    public static final int ADD_TERMS_CODE = 1;
+    public static final String EXTRA_ADD_TERMS = "add_terms";
     EditText wordInput;
     EditText translationInput;
     Button saveButton;
@@ -23,7 +25,7 @@ public class AddActivity extends AppCompatActivity {
     InputMethodManager imm;
     Term[] terms;
     ArrayList<Term> newTerms = new ArrayList<>();
-    ArrayList<Term> editedTerms = new ArrayList<>();
+    DAO dbVan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +37,10 @@ public class AddActivity extends AppCompatActivity {
         saveButton = (Button)  findViewById(R.id.save_button);
 
         Intent intent = getIntent();
-        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
+        list_name = intent.getStringExtra(ListActivity.LIST_NAME);
 
-        DBHelper dbHelper = new DBHelper(getApplicationContext());
-        terms = dbHelper.getList(list_name);
+        dbVan = new DAO(getApplicationContext());
+        terms = dbVan.getList(list_name);
 
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
@@ -63,12 +65,12 @@ public class AddActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    DBHelper dbHelper = new DBHelper(getApplicationContext());
-                    int id = dbHelper.insertWord(word, translation, list_name);
+                    int id = dbVan.addWord(word, translation, list_name);
                     Term new_term = new Term(id, word, translation, 0);
                     newTerms.add(new_term);
                     Intent result_intent = new Intent();
-                    result_intent.putExtra("FOO", newTerms);
+                    Log.i(MainActivity.TAG, "add activity");
+                    result_intent.putExtra(EXTRA_ADD_TERMS, newTerms);
                     setResult(RESULT_OK, result_intent);
                     saveNewWord();
                 }

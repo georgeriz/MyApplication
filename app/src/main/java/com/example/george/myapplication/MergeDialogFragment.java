@@ -11,8 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.george.myapplication.data.BasicFunctions;
-
 import java.util.ArrayList;
 
 public class MergeDialogFragment extends DialogFragment {
@@ -40,10 +38,7 @@ public class MergeDialogFragment extends DialogFragment {
                     Toast.makeText(getActivity(), "Select two different lists", Toast.LENGTH_LONG)
                             .show();
                 } else {
-                    //update persistent data (database)
-                    BasicFunctions.mergeFromToLanguageSafe(getActivity(), language_from, language_to);
-                    //update local data (UI)
-                    ((MainActivity) getActivity()).doMergeSuccessful(language_from);
+                    ((MainActivity) getActivity()).doMergeSuccessful(language_from, language_to);
                 }
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

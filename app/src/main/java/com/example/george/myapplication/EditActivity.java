@@ -10,12 +10,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.example.george.myapplication.data.BasicFunctions;
-import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.DAO;
 import com.example.george.myapplication.data.Term;
 
 public class EditActivity extends AppCompatActivity {
+    public static final int EDIT_TERM_CODE = 2;
     Term term;
+    DAO dbVan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,8 +24,9 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
 
         Intent intent = getIntent();
-        term = intent.getParcelableExtra(BasicFunctions.EXTRA_NAME_TERM);
+        term = intent.getParcelableExtra(ListActivity.TERM);
 
+        dbVan = new DAO(getApplicationContext());
 
         final EditText wordUpdate = (EditText) findViewById(R.id.word_update);
         final EditText translationUpdate = (EditText) findViewById(R.id.translation_update);
@@ -46,8 +48,7 @@ public class EditActivity extends AppCompatActivity {
                     term.setWord(myWord);
                     term.setTranslation(myTranslation);
                     term.setDegree(myDegree);
-                    DBHelper dbHelper = new DBHelper(getApplicationContext());
-                    dbHelper.editWord(term);
+                    dbVan.editTerm(term);
                     Intent result_intent = new Intent();
                     result_intent.putExtra("BAR", term);
                     setResult(RESULT_OK, result_intent);
@@ -69,7 +70,7 @@ public class EditActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.delete_word) {
-            BasicFunctions.deleteTerm(EditActivity.this, term);
+            dbVan.deleteTerm(term.getID());
             Intent result_intent = new Intent();
             result_intent.putExtra("DEL", true);
             result_intent.putExtra("BAR", term);

@@ -1,5 +1,6 @@
 package com.example.george.myapplication;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -9,24 +10,24 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.george.myapplication.data.BasicFunctions;
-import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.DAO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
-    final static String TAG = "myapp_info";
+    public final static String TAG = "myapp_info";
     ArrayAdapter<String> list_names_array_adapter;
     ArrayList<String> list_names;
+    DAO dbVan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DBHelper dbHelper = new DBHelper(this);
-        String[] lists = dbHelper.getLists();
+        dbVan = new DAO(getApplicationContext());
+        String[] lists = dbVan.getLists();
         if (lists == null) {
             list_names = new ArrayList<>();
         } else {
@@ -44,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArrayAdapter<String> arrayAdapter = (ArrayAdapter) parent.getAdapter();
                 String list_name = arrayAdapter.getItem(position);
-                BasicFunctions.openActivity(MainActivity.this, ListActivity.class, list_name);
+                startActivity((new Intent(getApplicationContext(), ListActivity.class))
+                        .putExtra(ListActivity.LIST_NAME, list_name));
             }
         });
 
@@ -64,22 +66,19 @@ public class MainActivity extends AppCompatActivity {
         list_names_array_adapter.notifyDataSetChanged();
     }
 
-    public void doMergeSuccessful(String language_from) {
+    public void doMergeSuccessful(String language_from, String language_to) {
+        dbVan.mergeListsWithCommonWords(language_from, language_to);
         list_names.remove(language_from);
         updateAdapter();
     }
 
     public void doAddListSuccessful(String list_name) {
-        list_names.add(list_name);
-        updateAdapter();
-    }
-
-    public void doDeleteSuccessful(String list_name) {
-        list_names.remove(list_name);
+        dbVan.addList(list_name);        list_names.add(list_name);
         updateAdapter();
     }
 
     public void doRenameSuccessful(String language_from, String language_to) {
+        dbVan.renameList(language_from, language_to);
         list_names.set(list_names.indexOf(language_from), language_to);
         updateAdapter();
     }
@@ -99,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
-                BasicFunctions.openActivity(MainActivity.this, SettingsActivity.class);
+                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
                 break;
             case R.id.action_add:
                 AddListFragment addListFragment = new AddListFragment();

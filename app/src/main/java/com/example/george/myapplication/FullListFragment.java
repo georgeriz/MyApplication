@@ -1,5 +1,6 @@
 package com.example.george.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -11,13 +12,9 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.example.george.myapplication.data.BasicFunctions;
 import com.example.george.myapplication.data.Term;
 import com.example.george.myapplication.data.TermAdapter;
 
-/**
- * Created by George on 2015-10-08.
- */
 public class FullListFragment extends Fragment {
     ListView listView;
     EditText searchEditText;
@@ -42,7 +39,9 @@ public class FullListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Term term = ((TermAdapter)parent.getAdapter()).getItem(position);
-                BasicFunctions.openActivityForResultWithTerm(getActivity(), EditActivity.class, term);
+                Intent intent = new Intent(getActivity(), EditActivity.class);
+                intent.putExtra(ListActivity.TERM, term);
+                getActivity().startActivityForResult(intent, EditActivity.EDIT_TERM_CODE);
             }
         });
 

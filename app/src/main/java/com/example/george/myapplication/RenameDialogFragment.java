@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.george.myapplication.data.BasicFunctions;
-
 public class RenameDialogFragment extends DialogFragment {
 
     public static RenameDialogFragment newInstance(String list_name) {
@@ -39,7 +37,6 @@ public class RenameDialogFragment extends DialogFragment {
                                 return;
                             }
                         }
-                        BasicFunctions.renameFromToLanguage(getActivity(), list_name, new_list_name);
                         ((MainActivity)getActivity()).doRenameSuccessful(list_name, new_list_name);
                     }
                 })

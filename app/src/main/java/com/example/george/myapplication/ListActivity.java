@@ -12,8 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.george.myapplication.data.BasicFunctions;
-import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.DAO;
 import com.example.george.myapplication.data.Term;
 
 import java.util.ArrayList;
@@ -21,14 +20,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
-    static final String LIST_NAME = "list_name";
-    static final String STATE_TERMS_LIST = "state_terms_list";
+    final public static String LIST_NAME = "com.example.george.myapplication.LIST_NAME";
+    final public static String TERM = "com.example.george.myapplicaiton.TERM";
+    static final String STATE_LIST_NAME = "list_name";
+    static final String STATE_TERMS_LIST = "terms_list";
     static final String STATE_ARTICLE = "article";
     String list_name;
     String article;
     ViewPager viewPager;
     ArrayList<Term> terms;
     FragmentAdapter mAdapter;
+    DAO dbVan;
 
     @Override
     @SuppressWarnings("deprecation")
@@ -75,20 +77,21 @@ public class ListActivity extends AppCompatActivity {
         mAdapter = new FragmentAdapter(getSupportFragmentManager());
         viewPager.setAdapter(mAdapter);
 
+        dbVan = new DAO(getApplicationContext());
+
         if (savedInstanceState == null) {
             Intent intent = getIntent();
-            list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
+            list_name = intent.getStringExtra(LIST_NAME);
 
-            DBHelper dbHelper = new DBHelper(getApplicationContext());
-            Term[] foo = dbHelper.getList(list_name);
+            Term[] foo = dbVan.getList(list_name);
             if (foo == null) {
                 terms = new ArrayList<>();
             } else {
                 terms = new ArrayList<>(Arrays.asList(foo));
             }
-            article = dbHelper.getPrefix(list_name);
+            article = dbVan.getPrefix(list_name);
         } else {
-            list_name = savedInstanceState.getString(LIST_NAME);
+            list_name = savedInstanceState.getString(STATE_LIST_NAME);
             terms = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
             article = savedInstanceState.getString(STATE_ARTICLE);
         }
@@ -111,6 +114,14 @@ public class ListActivity extends AppCompatActivity {
 
     public int getSize() {
         return terms.size();
+    }
+
+    public void resetLearningProgress() {
+        dbVan.resetLearningProcess(list_name);
+    }
+
+    public void addPrefix(String prefix) {
+        dbVan.addPrefix(prefix, list_name);
     }
 
     public void updateTerms() {
@@ -140,7 +151,7 @@ public class ListActivity extends AppCompatActivity {
 
         switch (id) {
             case R.id.action_settings:
-                BasicFunctions.openActivity(ListActivity.this, SettingsActivity.class);
+                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
                 break;
             default:
                 break;
@@ -159,34 +170,40 @@ public class ListActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BasicFunctions.EDIT_TERM && resultCode == RESULT_OK) {
-            boolean isDelete = data.getBooleanExtra("DEL", false);
-            Term foo = data.getParcelableExtra("BAR");
-            for (Term t : terms) {
-                if (t.getID() == foo.getID()) {
-                    if(isDelete){
-                        terms.remove(t);
-                    }else {
-                        terms.set(terms.indexOf(t), foo);
+        if(resultCode == RESULT_OK)
+            switch (requestCode) {
+                case EditActivity.EDIT_TERM_CODE:
+                    boolean isDelete = data.getBooleanExtra("DEL", false);
+                    Term foo = data.getParcelableExtra("BAR");
+                    for (Term t : terms) {
+                        if (t.getID() == foo.getID()) {
+                            if(isDelete){
+                                terms.remove(t);
+                            }else {
+                                terms.set(terms.indexOf(t), foo);
+                            }
+                            break;
+                        }
                     }
+                    updateTerms();
                     break;
-                }
+                case AddActivity.ADD_TERMS_CODE:
+                    ArrayList<Term> newTerms = data.getParcelableArrayListExtra(
+                            AddActivity.EXTRA_ADD_TERMS);
+                    terms.addAll(newTerms);
+                    updateTerms();
+                    break;
+                case LearnActivity.LEARN_CODE:
+                    terms.clear();
+                    Term[] foo2 = dbVan.getList(list_name);
+                    if (foo2 != null) {
+                        terms.addAll(Arrays.asList(foo2));
+                    }
+                    updateTerms();
+                    break;
+                default:
+                    break;
             }
-            updateTerms();
-        } else if (requestCode == BasicFunctions.ADD_TERMS && resultCode == RESULT_OK) {
-
-            ArrayList<Term> newTerms = data.getParcelableArrayListExtra("FOO");
-            terms.addAll(newTerms);
-            updateTerms();
-        } else if (requestCode == 3 && resultCode == RESULT_OK) {
-            terms.clear();
-            DBHelper dbHelper = new DBHelper(getApplicationContext());
-            Term[] foo = dbHelper.getList(list_name);
-            if (foo != null) {
-                terms.addAll(Arrays.asList(foo));
-            }
-            updateTerms();
-        }
     }
 
     public class FragmentAdapter extends FragmentPagerAdapter {

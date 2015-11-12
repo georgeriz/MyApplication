@@ -11,8 +11,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.george.myapplication.data.BasicFunctions;
-import com.example.george.myapplication.data.DBHelper;
 import com.example.george.myapplication.data.Term;
 
 public class GeneralFragment extends Fragment {
@@ -36,24 +34,25 @@ public class GeneralFragment extends Fragment {
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent open_activity_intent = new Intent(getActivity(), LearnActivity.class);
-                open_activity_intent.putExtra(BasicFunctions.LIST_NAME, listActivity.getList_name());
-                getActivity().startActivityForResult(open_activity_intent, 3);
+                Intent intent = new Intent(getActivity(), LearnActivity.class);
+                intent.putExtra(ListActivity.LIST_NAME, listActivity.getList_name());
+                getActivity().startActivityForResult(intent, LearnActivity.LEARN_CODE);
             }
         });
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BasicFunctions.openActivityForResult(getActivity(), AddActivity.class,
-                        listActivity.getList_name());
+                Intent intent = new Intent(getActivity(), AddActivity.class);
+                intent.putExtra(ListActivity.LIST_NAME, listActivity.getList_name());
+                getActivity().startActivityForResult(intent, AddActivity.ADD_TERMS_CODE);
+
             }
         });
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DBHelper dbHelper = new DBHelper(listActivity);
-                dbHelper.resetLearningProcess(listActivity.getList_name());
+                listActivity.resetLearningProgress();
                 for (Term t : listActivity.terms) {
                     t.setDegree(0);
                 }
@@ -73,8 +72,8 @@ public class GeneralFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String article = editArticles.getText().toString().trim();
-                if (article != "")
-                    BasicFunctions.addArticle(listActivity, article, listActivity.getList_name());
+                if (!article.equals(""))
+                    listActivity.addPrefix(article);
             }
         });
         return rootView;

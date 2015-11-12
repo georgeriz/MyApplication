@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -17,8 +16,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.george.myapplication.data.BasicFunctions;
-import com.example.george.myapplication.data.DBHelper;
+import com.example.george.myapplication.data.DAO;
 import com.example.george.myapplication.data.Term;
 
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ public class LearnActivity extends AppCompatActivity {
     final static String STATE_TERM = "term";
     final static String STATE_TERMS_LIST = "terms list";
     final static String STATE_ARTICLES = "articles";
+    final static int LEARN_CODE = 3;
     final static int CORRECT_COLOR = Color.GREEN;
     final static int WRONG_COLOR = Color.RED;
     final static int NEUTRAL_COLOR = Color.parseColor("#3399FF");
@@ -51,6 +50,7 @@ public class LearnActivity extends AppCompatActivity {
     private boolean wasWordChecked;
     private boolean wasCorrect;
     private String[] articles;
+    DAO dbVan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +69,13 @@ public class LearnActivity extends AppCompatActivity {
 
 
         Intent intent = getIntent();
-        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
+        list_name = intent.getStringExtra(ListActivity.LIST_NAME);
         setTitle(list_name);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showTranslationFirst = settings.getBoolean("show_translation", true);
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         setResult(RESULT_OK);
+        dbVan = new DAO(getApplicationContext());
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,8 +94,7 @@ public class LearnActivity extends AppCompatActivity {
                             term.checkTranslation(guessInput);
                     inputCheckUI(isCorrect);
                     term.updateDegree(isCorrect);
-                    DBHelper dbHelper = new DBHelper(getApplicationContext());
-                    dbHelper.updateDegree(term.getID(), term.getDegree());
+                    dbVan.updateDegree(term.getID(), term.getDegree());
                     termsList.remove(term);
                 }
             }
@@ -102,13 +102,14 @@ public class LearnActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BasicFunctions.openActivityForResultWithTerm(LearnActivity.this, EditActivity.class, term);
+                startActivityForResult((new Intent(getApplicationContext(), EditActivity.class))
+                        .putExtra(ListActivity.TERM, term), EditActivity.EDIT_TERM_CODE);
             }
         });
 
         if (savedInstanceState == null) {
             termsList = new ArrayList<>();
-            articles = BasicFunctions.getArticles(this, list_name);
+            articles = dbVan.getArticles(list_name);
             wasCorrect = false;
             wasWordChecked = false;
             if (selectNextWord())
@@ -144,8 +145,7 @@ public class LearnActivity extends AppCompatActivity {
 
     private boolean selectNextWord() {
         if (termsList.size() == 0) {
-            DBHelper dbHelper = new DBHelper(getApplicationContext());
-            Term[] terms = dbHelper.getListWithUnlearned(list_name);
+            Term[] terms = dbVan.getListWithUnlearned(list_name);
             if (terms == null) {
                 Toast.makeText(getApplicationContext(), "All words learned. Reset.", Toast.LENGTH_LONG)
                         .show();
@@ -216,7 +216,7 @@ public class LearnActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == BasicFunctions.EDIT_TERM && resultCode == RESULT_OK) {
+        if (requestCode == EditActivity.EDIT_TERM_CODE && resultCode == RESULT_OK) {
             if (selectNextWord())
                 displayNextWordUI();
         }
