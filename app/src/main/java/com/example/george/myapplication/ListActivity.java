@@ -26,7 +26,6 @@ public class ListActivity extends AppCompatActivity {
     static final String STATE_ARTICLE = "article";
     String list_name;
     String article;
-    DBHelper dbHelper;
     ViewPager viewPager;
     ArrayList<Term> terms;
     FragmentAdapter mAdapter;
@@ -80,7 +79,7 @@ public class ListActivity extends AppCompatActivity {
             Intent intent = getIntent();
             list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
 
-            dbHelper = new DBHelper(getApplicationContext());
+            DBHelper dbHelper = new DBHelper(getApplicationContext());
             Term[] foo = dbHelper.getList(list_name);
             if (foo == null) {
                 terms = new ArrayList<>();
@@ -115,9 +114,6 @@ public class ListActivity extends AppCompatActivity {
     }
 
     public void updateTerms() {
-        /*terms.clear();
-        DBHelper dbHelper = new DBHelper(getApplicationContext());
-        terms.addAll(Arrays.asList(dbHelper.getList(list_name)));*/
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         for (Fragment fragment : fragments) {
             if (fragment instanceof GeneralFragment) {
@@ -184,6 +180,7 @@ public class ListActivity extends AppCompatActivity {
             updateTerms();
         } else if (requestCode == 3 && resultCode == RESULT_OK) {
             terms.clear();
+            DBHelper dbHelper = new DBHelper(getApplicationContext());
             Term[] foo = dbHelper.getList(list_name);
             if (foo != null) {
                 terms.addAll(Arrays.asList(foo));
