@@ -26,6 +26,14 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class LearnActivity extends AppCompatActivity {
+    final static String STATE_CORRECT = "if_it_was_correct";
+    final static String STATE_WORD_CHECKED = "if_it_was_checked";
+    final static String STATE_TERM = "term";
+    final static String STATE_TERMS_LIST = "terms list";
+    final static String STATE_ARTICLES = "articles";
+    final static int CORRECT_COLOR = Color.GREEN;
+    final static int WRONG_COLOR = Color.RED;
+    final static int NEUTRAL_COLOR = Color.parseColor("#3399FF");
     TextView shownWordText;
     EditText guessedWordEditText;
     TextView resultText;
@@ -37,16 +45,9 @@ public class LearnActivity extends AppCompatActivity {
     LinearLayout resultBox;
     RadioGroup radioGroup;
     boolean showTranslationFirst;
-    Term term;
-    ArrayList<Term> termsList = new ArrayList<>();
-    final static String CORRECT_TAG = "if_it_was_correct";
-    final static String WORD_CHECKED_TAG = "if_it_was_checked";
-    final static String STATE_TERM = "term";
-    final static String STATE_TERMS_LIST = "terms list";
-    final static int CORRECT_COLOR = Color.GREEN;
-    final static int WRONG_COLOR = Color.RED;
-    final static int NEUTRAL_COLOR = Color.parseColor("#3399FF");
     InputMethodManager imm;
+    Term term;
+    ArrayList<Term> termsList;
     private boolean wasWordChecked;
     private boolean wasCorrect;
     private String[] articles;
@@ -66,75 +67,76 @@ public class LearnActivity extends AppCompatActivity {
         resultBox = (LinearLayout) findViewById(R.id.learn_background);
         radioGroup = (RadioGroup) findViewById(R.id.radio_group);
 
+
+        Intent intent = getIntent();
+        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
+        setTitle(list_name);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        showTranslationFirst = settings.getBoolean("show_translation", true);
+        imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        setResult(RESULT_OK);
+
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (selectNextWord())
-                    displayNextWord();
+                    displayNextWordUI();
             }
         });
         checkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String guessInput = guessedWordEditText.getText().toString().trim();
-                int radio_id = radioGroup.getCheckedRadioButtonId();
                 if (!guessInput.isEmpty()) {
-                    guessInput = constructUserInput(guessInput, radio_id);
+                    guessInput = addArticle(guessInput, radioGroup.getCheckedRadioButtonId());
                     boolean isCorrect = showTranslationFirst ? term.checkWord(guessInput) :
                             term.checkTranslation(guessInput);
-                    wordChecked(isCorrect);
+                    inputCheckUI(isCorrect);
                     term.updateDegree(isCorrect);
                     DBHelper dbHelper = new DBHelper(getApplicationContext());
                     dbHelper.updateDegree(term.getID(), term.getDegree());
                     termsList.remove(term);
-                    //setResult(RESULT_OK);
                 }
             }
         });
-
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 BasicFunctions.openActivityForResultWithTerm(LearnActivity.this, EditActivity.class, term);
-                selectNextWord();
-                displayNextWord();
             }
         });
 
-        Intent intent = getIntent();
-        list_name = intent.getStringExtra(BasicFunctions.LIST_NAME);
-        setTitle(list_name);
-
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        showTranslationFirst = settings.getBoolean("show_translation", true);
-
-        //other initializations
-        wasCorrect = false;
-        wasWordChecked = false;
-        imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        articles = BasicFunctions.getArticles(this, list_name);
-
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) {
+            termsList = new ArrayList<>();
+            articles = BasicFunctions.getArticles(this, list_name);
+            wasCorrect = false;
+            wasWordChecked = false;
+            if (selectNextWord())
+                displayNextWordUI();
+        } else {
             term = savedInstanceState.getParcelable(STATE_TERM);
             termsList = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
-
-            wasWordChecked = savedInstanceState.getBoolean(WORD_CHECKED_TAG);
-            wasCorrect = savedInstanceState.getBoolean(CORRECT_TAG);
+            articles = savedInstanceState.getStringArray(STATE_ARTICLES);
+            wasWordChecked = savedInstanceState.getBoolean(STATE_WORD_CHECKED);
+            wasCorrect = savedInstanceState.getBoolean(STATE_CORRECT);
             if (wasWordChecked) {
-                wordChecked(wasCorrect);
+                inputCheckUI(wasCorrect);
             } else {
-                displayNextWord();
+                displayNextWordUI();
             }
-        } else {
-
-            if (selectNextWord())
-                displayNextWord();
         }
-        setResult(RESULT_OK);
+
+        if (articles != null)
+            for (String article : articles) {
+                RadioButton radioButton = new RadioButton(getApplicationContext());
+                radioButton.setText(article);
+                radioButton.setTextColor(Color.BLACK);
+                radioGroup.addView(radioButton);
+            }
     }
 
-    private String constructUserInput(String guessInput, int radio_id) {
-        if(radio_id == -1)
+    private String addArticle(String guessInput, int radio_id) {
+        if (radio_id == -1)
             return guessInput;
         RadioButton rb = (RadioButton) radioGroup.findViewById(radio_id);
         return rb.getText() + " " + guessInput;
@@ -157,16 +159,16 @@ public class LearnActivity extends AppCompatActivity {
         return true;
     }
 
-    private void displayNextWord() {
+    private void displayNextWordUI() {
         radioGroup.setVisibility(View.GONE);
         if (showTranslationFirst) {
             shownWordText.setText(term.getTranslation());
-            for(String article: articles)
-                if(term.getWord().startsWith(article + " ")) {
-                    Log.i(MainActivity.TAG, "starts with " + article);
-                    radioGroup.setVisibility(View.VISIBLE);
-                    break;
-                }
+            if (articles != null)
+                for (String article : articles)
+                    if (term.getWord().startsWith(article + " ")) {
+                        radioGroup.setVisibility(View.VISIBLE);
+                        break;
+                    }
         } else {
             shownWordText.setText(term.getWord());
         }
@@ -182,12 +184,10 @@ public class LearnActivity extends AppCompatActivity {
         wasWordChecked = false;
         nextButton.setClickable(false);
         checkButton.setClickable(true);
-
-        createRadioButtons();
         radioGroup.clearCheck();
     }
 
-    private void wordChecked(Boolean result) {
+    private void inputCheckUI(Boolean result) {
         if (result) {
             resultText.setText("Correct! :D");
             resultBox.setBackgroundColor(CORRECT_COLOR);
@@ -209,19 +209,16 @@ public class LearnActivity extends AppCompatActivity {
         super.onSaveInstanceState(state);
         state.putParcelable(STATE_TERM, term);
         state.putParcelableArrayList(STATE_TERMS_LIST, termsList);
-        state.putBoolean(WORD_CHECKED_TAG, wasWordChecked);
-        state.putBoolean(CORRECT_TAG, wasCorrect);
+        state.putBoolean(STATE_WORD_CHECKED, wasWordChecked);
+        state.putBoolean(STATE_CORRECT, wasCorrect);
+        state.putStringArray(STATE_ARTICLES, articles);
     }
 
-    private void createRadioButtons() {
-        int a = radioGroup.getChildCount();
-        if (a == 0) {
-            for (String article : articles) {
-                RadioButton radioButton = new RadioButton(getApplicationContext());
-                radioButton.setText(article);
-                radioButton.setTextColor(Color.BLACK);
-                radioGroup.addView(radioButton);
-            }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == BasicFunctions.EDIT_TERM && resultCode == RESULT_OK) {
+            if (selectNextWord())
+                displayNextWordUI();
         }
     }
 }

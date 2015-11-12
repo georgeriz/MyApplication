@@ -77,13 +77,13 @@ public class GeneralFragment extends Fragment {
                     BasicFunctions.addArticle(listActivity, article, listActivity.getList_name());
             }
         });
-
         return rootView;
     }
 
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
+        editArticles.setText(listActivity.article);
         updateProgress(listActivity.getSize(), listActivity.getProgress());
     }
 
@@ -96,6 +96,4 @@ public class GeneralFragment extends Fragment {
         String progressPercentageText = progress + "/" + max;
         progressPercentage.setText(progressPercentageText);
     }
-
-
 }

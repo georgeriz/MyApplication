@@ -97,6 +97,8 @@ public final class BasicFunctions {
     public static String[] getArticles(Activity activity, String language) {
         DBHelper dbHelper = new DBHelper(activity);
         String foo = dbHelper.getPrefix(language);
+        if (foo == null)
+            return null;
         String[] bar = foo.split(",");
         for (int i = 0; i < bar.length; i++) {
             bar[i] = bar[i].trim();

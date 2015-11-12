@@ -23,7 +23,9 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity {
     static final String LIST_NAME = "list_name";
     static final String STATE_TERMS_LIST = "state_terms_list";
+    static final String STATE_ARTICLE = "article";
     String list_name;
+    String article;
     DBHelper dbHelper;
     ViewPager viewPager;
     ArrayList<Term> terms;
@@ -85,9 +87,11 @@ public class ListActivity extends AppCompatActivity {
             } else {
                 terms = new ArrayList<>(Arrays.asList(foo));
             }
+            article = dbHelper.getPrefix(list_name);
         } else {
             list_name = savedInstanceState.getString(LIST_NAME);
             terms = savedInstanceState.getParcelableArrayList(STATE_TERMS_LIST);
+            article = savedInstanceState.getString(STATE_ARTICLE);
         }
         setTitle(list_name);
     }
@@ -154,6 +158,7 @@ public class ListActivity extends AppCompatActivity {
         super.onSaveInstanceState(state);
         state.putString(LIST_NAME, list_name);
         state.putParcelableArrayList(STATE_TERMS_LIST, terms);
+        state.putString(STATE_ARTICLE, article);
     }
 
     @Override
