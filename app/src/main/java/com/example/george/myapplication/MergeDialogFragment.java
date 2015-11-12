@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class MergeDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ArrayList<String> languages = ((MainActivity)getActivity()).list_names;
+        ArrayList<String> languages = ((ListsActivity)getActivity()).list_names;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -38,7 +38,7 @@ public class MergeDialogFragment extends DialogFragment {
                     Toast.makeText(getActivity(), "Select two different lists", Toast.LENGTH_LONG)
                             .show();
                 } else {
-                    ((MainActivity) getActivity()).doMergeSuccessful(language_from, language_to);
+                    ((ListsActivity) getActivity()).doMergeSuccessful(language_from, language_to);
                 }
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

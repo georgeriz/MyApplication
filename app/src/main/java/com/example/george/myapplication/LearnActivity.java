@@ -67,9 +67,9 @@ public class LearnActivity extends AppCompatActivity {
         radioGroup = (RadioGroup) findViewById(R.id.radio_group);
 
         Intent intent = getIntent();
-        list_name = intent.getStringExtra(ListActivity.LIST_NAME);
+        list_name = intent.getStringExtra(ManageListActivity.LIST_NAME);
         setTitle(list_name);
-        articles = intent.getStringArrayExtra(ListActivity.ARTICLES);
+        articles = intent.getStringArrayExtra(ManageListActivity.ARTICLES);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         showTranslationFirst = settings.getBoolean("show_translation", true);
         imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -101,8 +101,8 @@ public class LearnActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult((new Intent(getApplicationContext(), EditActivity.class))
-                        .putExtra(ListActivity.TERM, term), EditActivity.EDIT_TERM_CODE);
+                startActivityForResult((new Intent(getApplicationContext(), EditTermActivity.class))
+                        .putExtra(ManageListActivity.TERM, term), EditTermActivity.EDIT_TERM_CODE);
             }
         });
 
@@ -212,7 +212,7 @@ public class LearnActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == EditActivity.EDIT_TERM_CODE && resultCode == RESULT_OK) {
+        if (requestCode == EditTermActivity.EDIT_TERM_CODE && resultCode == RESULT_OK) {
             if (selectNextWord())
                 displayNextWordUI();
         }

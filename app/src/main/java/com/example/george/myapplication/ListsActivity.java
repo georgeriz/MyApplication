@@ -15,7 +15,7 @@ import com.example.george.myapplication.data.DAO;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity {
+public class ListsActivity extends AppCompatActivity {
     public final static String TAG = "myapp_info";
     ArrayAdapter<String> list_names_array_adapter;
     ArrayList<String> list_names;
@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArrayAdapter<String> arrayAdapter = (ArrayAdapter) parent.getAdapter();
                 String list_name = arrayAdapter.getItem(position);
-                startActivity((new Intent(getApplicationContext(), ListActivity.class))
-                        .putExtra(ListActivity.LIST_NAME, list_name));
+                startActivity((new Intent(getApplicationContext(), ManageListActivity.class))
+                        .putExtra(ManageListActivity.LIST_NAME, list_name));
             }
         });
 

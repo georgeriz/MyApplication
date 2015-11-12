@@ -18,14 +18,14 @@ public class AddListFragment extends DialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String new_list_name = listNameEditText.getText().toString().trim();
-                        for(String list_name: ((MainActivity)getActivity()).list_names){
+                        for(String list_name: ((ListsActivity)getActivity()).list_names){
                             if(list_name.equals(new_list_name)) {
                                 Toast.makeText(getActivity(), "This already exists", Toast.LENGTH_LONG)
                                         .show();
                                 return;
                             }
                         }
-                        ((MainActivity) getActivity()).doAddListSuccessful(new_list_name);
+                        ((ListsActivity) getActivity()).doAddListSuccessful(new_list_name);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

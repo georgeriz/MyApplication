@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity {
+public class ManageListActivity extends AppCompatActivity {
     final public static String LIST_NAME = "com.example.george.myapplication.LIST_NAME";
     final public static String TERM = "com.example.george.myapplicaiton.TERM";
     final public static String ARTICLES = "com.example.george.myapplication.ARTICLES";
@@ -133,6 +133,7 @@ public class ListActivity extends AppCompatActivity {
 
     public void addPrefix(String prefix) {
         dbVan.addPrefix(prefix, list_name);
+        article = prefix;
     }
 
     public void updateTerms() {
@@ -183,32 +184,32 @@ public class ListActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode == RESULT_OK)
             switch (requestCode) {
-                case EditActivity.EDIT_TERM_CODE:
-                    boolean isDelete = data.getBooleanExtra("DEL", false);
-                    Term foo = data.getParcelableExtra("BAR");
-                    for (Term t : terms) {
-                        if (t.getID() == foo.getID()) {
+                case EditTermActivity.EDIT_TERM_CODE:
+                    boolean isDelete = data.getBooleanExtra(EditTermActivity.DELETE, false);
+                    Term editedTerm = data.getParcelableExtra(EditTermActivity.TERM);
+                    for (Term oldTerm : terms) {
+                        if (oldTerm.getID() == editedTerm.getID()) {
                             if(isDelete){
-                                terms.remove(t);
+                                terms.remove(oldTerm);
                             }else {
-                                terms.set(terms.indexOf(t), foo);
+                                terms.set(terms.indexOf(oldTerm), editedTerm);
                             }
                             break;
                         }
                     }
                     updateTerms();
                     break;
-                case AddActivity.ADD_TERMS_CODE:
+                case AddWordActivity.ADD_TERMS_CODE:
                     ArrayList<Term> newTerms = data.getParcelableArrayListExtra(
-                            AddActivity.EXTRA_ADD_TERMS);
+                            AddWordActivity.EXTRA_ADD_TERMS);
                     terms.addAll(newTerms);
                     updateTerms();
                     break;
                 case LearnActivity.LEARN_CODE:
                     terms.clear();
-                    Term[] foo2 = dbVan.getList(list_name);
-                    if (foo2 != null) {
-                        terms.addAll(Arrays.asList(foo2));
+                    Term[] refreshedTerms = dbVan.getList(list_name);
+                    if (refreshedTerms != null) {
+                        terms.addAll(Arrays.asList(refreshedTerms));
                     }
                     updateTerms();
                     break;

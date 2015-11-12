@@ -13,12 +13,10 @@ import android.widget.TextView;
 
 import com.example.george.myapplication.data.Term;
 
-import java.util.List;
-
 public class GeneralFragment extends Fragment {
     TextView progressPercentage;
     ProgressBar listProgressBar;
-    ListActivity listActivity;
+    ManageListActivity manageListActivity;
     EditText editArticles;
 
 
@@ -32,14 +30,14 @@ public class GeneralFragment extends Fragment {
         Button addButton = (Button) rootView.findViewById(R.id.addButton);
         Button resetButton = (Button) rootView.findViewById(R.id.resetLearningProgressButton);
 
-        listActivity = (ListActivity) getActivity();
+        manageListActivity = (ManageListActivity) getActivity();
 
         learnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), LearnActivity.class);
-                intent.putExtra(ListActivity.LIST_NAME, listActivity.getList_name());
-                intent.putExtra(ListActivity.ARTICLES, listActivity.getArticles());
+                intent.putExtra(ManageListActivity.LIST_NAME, manageListActivity.getList_name());
+                intent.putExtra(ManageListActivity.ARTICLES, manageListActivity.getArticles());
                 getActivity().startActivityForResult(intent, LearnActivity.LEARN_CODE);
             }
         });
@@ -47,20 +45,20 @@ public class GeneralFragment extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AddActivity.class);
-                intent.putExtra(ListActivity.LIST_NAME, listActivity.getList_name());
-                getActivity().startActivityForResult(intent, AddActivity.ADD_TERMS_CODE);
+                Intent intent = new Intent(getActivity(), AddWordActivity.class);
+                intent.putExtra(ManageListActivity.LIST_NAME, manageListActivity.getList_name());
+                getActivity().startActivityForResult(intent, AddWordActivity.ADD_TERMS_CODE);
 
             }
         });
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listActivity.resetLearningProgress();
-                for (Term t : listActivity.terms) {
+                manageListActivity.resetLearningProgress();
+                for (Term t : manageListActivity.terms) {
                     t.setDegree(0);
                 }
-                listActivity.updateTerms();
+                manageListActivity.updateTerms();
             }
         });
 
@@ -77,7 +75,7 @@ public class GeneralFragment extends Fragment {
             public void onClick(View v) {
                 String article = editArticles.getText().toString().trim();
                 if (!article.equals(""))
-                    listActivity.addPrefix(article);
+                    manageListActivity.addPrefix(article);
             }
         });
         return rootView;
@@ -86,8 +84,8 @@ public class GeneralFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
-        editArticles.setText(listActivity.article);
-        updateProgress(listActivity.getSize(), listActivity.getProgress());
+        editArticles.setText(manageListActivity.article);
+        updateProgress(manageListActivity.getSize(), manageListActivity.getProgress());
     }
 
     public void updateProgress(int max, int progress) {

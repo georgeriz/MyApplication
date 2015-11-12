@@ -29,7 +29,7 @@ public class RenameDialogFragment extends DialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String new_list_name = listNameEditText.getText().toString().trim();
-                        for (String a_list : ((MainActivity) getActivity()).list_names) {
+                        for (String a_list : ((ListsActivity) getActivity()).list_names) {
                             if (a_list.equals(new_list_name)) {
                                 Toast.makeText(getActivity(), "This name already exists." +
                                         "Try merging the two lists instead.", Toast.LENGTH_LONG)
@@ -37,7 +37,7 @@ public class RenameDialogFragment extends DialogFragment {
                                 return;
                             }
                         }
-                        ((MainActivity)getActivity()).doRenameSuccessful(list_name, new_list_name);
+                        ((ListsActivity)getActivity()).doRenameSuccessful(list_name, new_list_name);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

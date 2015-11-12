@@ -13,8 +13,10 @@ import android.widget.EditText;
 import com.example.george.myapplication.data.DAO;
 import com.example.george.myapplication.data.Term;
 
-public class EditActivity extends AppCompatActivity {
+public class EditTermActivity extends AppCompatActivity {
     public static final int EDIT_TERM_CODE = 2;
+    public static final String TERM = "term_in_extra";
+    public static final String DELETE = "to_delete";
     Term term;
     DAO dbVan;
 
@@ -24,7 +26,7 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
 
         Intent intent = getIntent();
-        term = intent.getParcelableExtra(ListActivity.TERM);
+        term = intent.getParcelableExtra(ManageListActivity.TERM);
 
         dbVan = new DAO(getApplicationContext());
 
@@ -50,7 +52,7 @@ public class EditActivity extends AppCompatActivity {
                     term.setDegree(myDegree);
                     dbVan.editTerm(term);
                     Intent result_intent = new Intent();
-                    result_intent.putExtra("BAR", term);
+                    result_intent.putExtra(TERM, term);
                     setResult(RESULT_OK, result_intent);
                     finish();
                 }
@@ -72,8 +74,8 @@ public class EditActivity extends AppCompatActivity {
         if(id == R.id.delete_word) {
             dbVan.deleteTerm(term.getID());
             Intent result_intent = new Intent();
-            result_intent.putExtra("DEL", true);
-            result_intent.putExtra("BAR", term);
+            result_intent.putExtra(DELETE, true);
+            result_intent.putExtra(TERM, term);
             setResult(RESULT_OK, result_intent);
             finish();
         }

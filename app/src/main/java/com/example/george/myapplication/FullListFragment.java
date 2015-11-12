@@ -18,7 +18,7 @@ import com.example.george.myapplication.data.TermAdapter;
 public class FullListFragment extends Fragment {
     ListView listView;
     EditText searchEditText;
-    ListActivity listActivity;
+    ManageListActivity manageListActivity;
     TermAdapter termAdapter;
 
     @Override
@@ -30,18 +30,17 @@ public class FullListFragment extends Fragment {
         listView = (ListView) rootView.findViewById(R.id.words_list);
         searchEditText = (EditText) rootView.findViewById(R.id.search_list);
 
-        listActivity = (ListActivity) getActivity();
+        manageListActivity = (ManageListActivity) getActivity();
 
-        //Term[] terms = listActivity.getTerms();
-        termAdapter = new TermAdapter(listActivity, R.layout.listview_item_row, listActivity.terms);
+        termAdapter = new TermAdapter(manageListActivity, R.layout.listview_item_row, manageListActivity.terms);
         listView.setAdapter(termAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Term term = ((TermAdapter)parent.getAdapter()).getItem(position);
-                Intent intent = new Intent(getActivity(), EditActivity.class);
-                intent.putExtra(ListActivity.TERM, term);
-                getActivity().startActivityForResult(intent, EditActivity.EDIT_TERM_CODE);
+                Intent intent = new Intent(getActivity(), EditTermActivity.class);
+                intent.putExtra(ManageListActivity.TERM, term);
+                getActivity().startActivityForResult(intent, EditTermActivity.EDIT_TERM_CODE);
             }
         });
 
